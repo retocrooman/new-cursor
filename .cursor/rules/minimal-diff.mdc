@@ -1,0 +1,9 @@
+---
+description: Minimal diff engineering policy
+alwaysApply: true
+---
+
+# Minimal Diff
+
+- 差分は要件を満たす最小限にする。
+- 設計や意思決定は、差分が少ない方を優先する。
