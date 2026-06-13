@@ -129,7 +129,7 @@ describe("E2E-7B — stub success completes run and task", () => {
     }
   });
 
-  it("emits run_completed and moves task to completed", async () => {
+  it("emits run_completed and moves task to verify", async () => {
     setCursorSdkAdapterForTests(stub);
     const fixture = createBareRepoFixture();
     cleanups.push(fixture.cleanup);
@@ -189,7 +189,7 @@ describe("E2E-7B — stub success completes run and task", () => {
           .select()
           .from(tasks)
           .where(eq(tasks.id, taskId));
-        expect(taskRows[0]?.stage).toBe("completed");
+        expect(taskRows[0]?.stage).toBe("verify");
 
         const runRows = await db.select().from(runs);
         expect(runRows[0]?.status).toBe("completed");

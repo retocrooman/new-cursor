@@ -57,6 +57,7 @@ export const TASK_STAGE_VALUES = [
   "worktree_ready",
   "queued",
   "implementing",
+  "verify",
   "completed",
 ] as const;
 

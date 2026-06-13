@@ -13,7 +13,10 @@ type NavItem = {
   href: string;
 };
 
-const NAV_ITEMS: NavItem[] = [{ label: "ホーム", href: "/" }];
+const NAV_ITEMS: NavItem[] = [
+  { label: "ホーム", href: "/" },
+  { label: "エージェント", href: "/agents" },
+];
 
 type Props = {
   user: {

@@ -32,7 +32,7 @@ describe("E2E-9A — queued task release after run_completed", () => {
     }
   });
 
-  it("releases the second task from queued to worktree_requested after the first completes", async () => {
+  it("keeps the second task queued until the first reaches completed", async () => {
     setCursorSdkAdapterForTests(stub);
     const fixture = createBareRepoFixture();
     cleanups.push(fixture.cleanup);
@@ -108,8 +108,8 @@ describe("E2E-9A — queued task release after run_completed", () => {
           .select()
           .from(tasks)
           .where(eq(tasks.id, secondTaskId));
-        expect(firstAfterQueue[0]?.stage).toBe("completed");
-        expect(secondAfterQueue[0]?.stage).not.toBe("queued");
+        expect(firstAfterQueue[0]?.stage).toBe("verify");
+        expect(secondAfterQueue[0]?.stage).toBe("queued");
 
         const releaseOutbox = await db
           .select()
@@ -128,25 +128,7 @@ describe("E2E-9A — queued task release after run_completed", () => {
               payload.toStage === "worktree_requested"
             );
           }),
-        ).toBe(true);
-
-        const secondStage = secondAfterQueue[0]?.stage;
-        if (secondStage === "worktree_requested") {
-          await relayAndDispatchAll({ db, sqs: env.sqs, maxRounds: 8 });
-
-          const secondAfterWorktree = await db
-            .select()
-            .from(tasks)
-            .where(eq(tasks.id, secondTaskId));
-          expect(secondAfterWorktree[0]?.stage).toBe("worktree_ready");
-          expect(secondAfterWorktree[0]?.worktreePath).toBeTruthy();
-          return;
-        }
-
-        expect(secondAfterQueue[0]?.worktreePath).toBeTruthy();
-        expect(["worktree_ready", "implementing", "completed"]).toContain(
-          secondStage,
-        );
+        ).toBe(false);
       } finally {
         await getRawClient(db).end();
       }

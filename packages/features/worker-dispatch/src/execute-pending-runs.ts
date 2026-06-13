@@ -9,7 +9,12 @@ import {
   runCompletedPayload,
   updateRunAfterSdk,
 } from "@new-cursor/runs-feature";
-import { findTaskById, updateTaskStage } from "@new-cursor/tasks-feature";
+import {
+  createTaskStageChangedEvent,
+  findTaskById,
+  taskStageChangedPayload,
+  updateTaskStage,
+} from "@new-cursor/tasks-feature";
 
 import type { PendingRunExecution } from "./pending-run";
 import { withEvent, workerEventSpec } from "./with-event";
@@ -63,11 +68,28 @@ export async function executePendingRun(
 
       const task = await findTaskById(tx, pending.taskId);
       if (task?.stage === "implementing") {
-        await updateTaskStage(tx, {
+        const { updated, projection } = await updateTaskStage(tx, {
           taskId: pending.taskId,
           fromStage: "implementing",
-          toStage: "completed",
+          toStage: "verify",
         });
+        if (updated) {
+          await withEvent(tx, {
+            actorId: pending.agentId,
+            run: async () => ({
+              events: workerEventSpec({
+                aggregate: projection,
+                payload: taskStageChangedPayload({
+                  taskId: projection.id,
+                  fromStage: "implementing",
+                  toStage: "verify",
+                }),
+                factory: createTaskStageChangedEvent,
+                occurredAtFrom: "updated",
+              }),
+            }),
+          });
+        }
       }
       return;
     }

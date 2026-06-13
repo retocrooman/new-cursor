@@ -12,6 +12,8 @@ import {
   updateTaskStage,
 } from "@new-cursor/tasks-feature";
 
+import type { PendingRunExecution } from "../pending-run";
+import { createVerifyRunFromCompleted } from "./create-verify-run-from-completed";
 import { withEvent, workerEventSpec } from "../with-event";
 
 export type QueuedReleaseResult =
@@ -95,8 +97,8 @@ export async function applyQueuedReleaseOnRunCompleted(
 }
 
 export async function handleRunCompleted(
-  _tx: DbOrTx,
-  _input: { message: DeliveryMessage; agentId: string; fanOutIndex: number },
-): Promise<null> {
-  return null;
+  tx: DbOrTx,
+  input: { message: DeliveryMessage; agentId: string; fanOutIndex: number },
+): Promise<PendingRunExecution | null> {
+  return createVerifyRunFromCompleted(tx, input);
 }

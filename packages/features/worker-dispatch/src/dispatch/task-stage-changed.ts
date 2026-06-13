@@ -25,7 +25,9 @@ import {
   updateTaskStage,
 } from "@new-cursor/tasks-feature";
 
+import type { PendingRunExecution } from "../pending-run";
 import { withEvent, workerEventSpec } from "../with-event";
+import { createVerifyRun } from "./create-verify-run";
 
 export type WorktreeTransitionResult =
   | { kind: "skipped" }
@@ -139,8 +141,12 @@ export async function applyWorktreeRequestedTransition(
 export async function handleTaskStageChanged(
   tx: DbOrTx,
   input: { message: DeliveryMessage; agentId: string; fanOutIndex: number },
-): Promise<null> {
+): Promise<PendingRunExecution | null> {
   const payload = taskStageChangedPayloadSchema.parse(input.message.payload);
+  if (payload.toStage === "verify") {
+    return createVerifyRun(tx, input);
+  }
+
   if (payload.toStage !== "worktree_requested") {
     return null;
   }

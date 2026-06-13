@@ -1,5 +1,6 @@
 import type { DbOrTx } from "@new-cursor/db";
 import type { DeliveryMessage } from "@new-cursor/events";
+import { taskStageChangedPayloadSchema } from "@new-cursor/tasks-feature";
 
 import type { PendingRunExecution } from "../pending-run";
 import { resolveSubscribers } from "../resolve-subscribers";
@@ -73,19 +74,23 @@ export async function dispatchToSubscribers(
   > | null = null;
   if (message.eventType === "task_stage_changed") {
     worktreeTransition = await applyWorktreeRequestedTransition(tx, message);
-    if (worktreeTransition.kind === "skipped") {
-      return {
-        agentCount: agentIds.length,
-        dispatched: 0,
-        errors: 0,
-        pendingRuns: [],
-      };
-    }
-    if (agentIds[0]) {
-      await writeRepositoryCloneCompletedIfNeeded(tx, {
-        actorId: agentIds[0],
-        transition: worktreeTransition,
-      });
+    if (worktreeTransition.kind !== "skipped") {
+      if (agentIds[0]) {
+        await writeRepositoryCloneCompletedIfNeeded(tx, {
+          actorId: agentIds[0],
+          transition: worktreeTransition,
+        });
+      }
+    } else {
+      const payload = taskStageChangedPayloadSchema.parse(message.payload);
+      if (payload.toStage !== "verify") {
+        return {
+          agentCount: agentIds.length,
+          dispatched: 0,
+          errors: 0,
+          pendingRuns: [],
+        };
+      }
     }
   }
 

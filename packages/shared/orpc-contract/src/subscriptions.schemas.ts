@@ -1,6 +1,19 @@
 import { auditFields } from "@new-cursor/projections";
 import { z } from "zod";
 
+export const SUBSCRIPTION_EVENT_TYPES = [
+  "task_created",
+  "task_stage_changed",
+  "task_worktree_ready",
+  "task_queued",
+  "run_started",
+  "run_completed",
+  "repository_clone_completed",
+  "subscription_upserted",
+] as const;
+
+export type SubscriptionEventType = (typeof SUBSCRIPTION_EVENT_TYPES)[number];
+
 export const subscriptionProjectionSchema = z.object({
   id: z.string().uuid(),
   agentId: z.string().uuid(),

@@ -34,6 +34,7 @@ export function taskStageChangedMessage(
       | "worktree_ready"
       | "queued"
       | "implementing"
+      | "verify"
       | "completed";
     toStage:
       | "created"
@@ -41,6 +42,7 @@ export function taskStageChangedMessage(
       | "worktree_ready"
       | "queued"
       | "implementing"
+      | "verify"
       | "completed";
   },
   eventId = randomUUID(),
@@ -88,6 +90,7 @@ export function runCompletedMessage(
     taskId: string;
     agentId: string;
     status: "completed" | "error";
+    stage?: "implementing" | "verify";
     version: number;
     occurredAt: string;
   },
@@ -103,7 +106,7 @@ export function runCompletedMessage(
       taskId: input.taskId,
       agentId: input.agentId,
       status: input.status,
-      stage: "implementing",
+      stage: input.stage ?? "implementing",
       summary: null,
       errorMessage: input.status === "error" ? "failed" : null,
       cursorAgentId: "agent-stub-success",

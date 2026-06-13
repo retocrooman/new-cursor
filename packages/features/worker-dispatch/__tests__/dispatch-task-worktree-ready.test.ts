@@ -3,7 +3,7 @@ import {
   StubCursorSdkAdapter,
   setCursorSdkAdapterForTests,
 } from "@new-cursor/cursor-sdk-port";
-import { eq, outbox, runs, tasks } from "@new-cursor/db";
+import { and, eq, outbox, runs, tasks } from "@new-cursor/db";
 import { upsertSubscription } from "@new-cursor/subscriptions-feature";
 import { insertTask } from "@new-cursor/tasks-feature";
 import { testDb, withRollbackTx } from "@new-cursor/vitest-config/setup";
@@ -56,7 +56,10 @@ describe("dispatch task_worktree_ready", () => {
       expect(result.pendingRuns).toHaveLength(1);
       expect(result.pendingRuns[0]?.worktreePath).toBe("/tmp/worktree");
 
-      const runRows = await tx.select().from(runs);
+      const runRows = await tx
+        .select()
+        .from(runs)
+        .where(eq(runs.taskId, task.id));
       expect(runRows).toHaveLength(1);
       expect(runRows[0]?.status).toBe("running");
 
@@ -69,7 +72,12 @@ describe("dispatch task_worktree_ready", () => {
       const startedOutbox = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "run_started"));
+        .where(
+          and(
+            eq(outbox.eventType, "run_started"),
+            eq(outbox.aggregateId, runRows[0]!.id),
+          ),
+        );
       expect(startedOutbox).toHaveLength(1);
     });
   });
@@ -133,7 +141,7 @@ describe("dispatch task_worktree_ready", () => {
       .select()
       .from(tasks)
       .where(eq(tasks.id, taskId));
-    expect(taskRows[0]?.stage).toBe("completed");
+    expect(taskRows[0]?.stage).toBe("verify");
 
     const completedOutbox = await testDb
       .select()

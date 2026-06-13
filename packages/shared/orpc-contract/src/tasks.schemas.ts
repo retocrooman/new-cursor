@@ -13,6 +13,7 @@ export const taskProjectionSchema = z.object({
     "worktree_ready",
     "queued",
     "implementing",
+    "verify",
     "completed",
   ]),
   worktreePath: z.string().nullable(),
