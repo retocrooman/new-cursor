@@ -27,7 +27,7 @@ export async function applyTaskCreatedStageTransition(
 export async function handleTaskCreated(
   tx: DbOrTx,
   input: { message: DeliveryMessage; agentId: string; fanOutIndex: number },
-): Promise<void> {
+): Promise<null> {
   const payload = taskCreatedPayloadSchema.parse(input.message.payload);
   const projection = await findTaskById(tx, payload.taskId);
   if (!projection) {
@@ -35,7 +35,7 @@ export async function handleTaskCreated(
   }
 
   if (projection.stage !== "worktree_requested") {
-    return;
+    return null;
   }
 
   await withEvent(tx, {
@@ -56,4 +56,5 @@ export async function handleTaskCreated(
       }),
     }),
   });
+  return null;
 }

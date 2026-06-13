@@ -5,8 +5,11 @@ export const runProjectionSchema = z.object({
   id: z.string().uuid(),
   taskId: z.string().uuid(),
   agentId: z.string().uuid(),
+  cursorAgentId: z.string().nullable(),
+  status: z.enum(["running", "completed", "error"]),
   stage: z.string().nullable(),
   summary: z.string().nullable(),
+  errorMessage: z.string().nullable(),
   ...auditFields,
 });
 

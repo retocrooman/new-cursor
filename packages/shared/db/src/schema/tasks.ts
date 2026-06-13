@@ -17,6 +17,8 @@ export const TASK_STAGES = [
   "worktree_requested",
   "worktree_ready",
   "queued",
+  "implementing",
+  "completed",
 ] as const;
 export type TaskStage = (typeof TASK_STAGES)[number];
 

@@ -139,10 +139,10 @@ export async function applyWorktreeRequestedTransition(
 export async function handleTaskStageChanged(
   tx: DbOrTx,
   input: { message: DeliveryMessage; agentId: string; fanOutIndex: number },
-): Promise<void> {
+): Promise<null> {
   const payload = taskStageChangedPayloadSchema.parse(input.message.payload);
   if (payload.toStage !== "worktree_requested") {
-    return;
+    return null;
   }
 
   const projection = await findTaskById(tx, payload.taskId);
@@ -160,7 +160,7 @@ export async function handleTaskStageChanged(
         })
       : null;
     if (!blocking || !projection.repositoryId || !projection.branchName) {
-      return;
+      return null;
     }
 
     const repositoryId = projection.repositoryId;
@@ -185,16 +185,16 @@ export async function handleTaskStageChanged(
         }),
       }),
     });
-    return;
+    return null;
   }
 
   if (projection.stage !== "worktree_ready" || !projection.worktreePath) {
-    return;
+    return null;
   }
 
   const branchName = projection.branchName;
   if (!branchName) {
-    return;
+    return null;
   }
 
   await withEvent(tx, {
@@ -215,6 +215,7 @@ export async function handleTaskStageChanged(
       }),
     }),
   });
+  return null;
 }
 
 export async function writeRepositoryCloneCompletedIfNeeded(

@@ -147,7 +147,7 @@ export async function findBlockingTaskForRepoBranch(
 
   for (const row of rows) {
     const stage = row.stage as TaskStage;
-    if (stage === "worktree_ready") {
+    if (stage === "worktree_ready" || stage === "implementing") {
       return toTaskProjection(row as TaskRow);
     }
     if (stage === "worktree_requested" && row.createdAt < input.taskCreatedAt) {

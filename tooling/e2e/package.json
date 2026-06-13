@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@new-cursor/agents-feature": "workspace:*",
+    "@new-cursor/cursor-sdk-port": "workspace:*",
     "@new-cursor/db": "workspace:*",
     "@new-cursor/delivery-feature": "workspace:*",
     "@new-cursor/events": "workspace:*",

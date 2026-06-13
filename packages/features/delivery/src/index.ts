@@ -229,10 +229,11 @@ export type ProcessBatchResult = {
 };
 
 /** Worker Phase 5: inbox 冪等 + dispatch + SQS delete。 */
-export async function processDeliveryMessages(input: {
+export async function processDeliveryMessages<T = void>(input: {
   db: Database;
   sqs: SqsEnv;
-  dispatch: (tx: DbOrTx, message: DeliveryMessage) => Promise<void>;
+  dispatch: (tx: DbOrTx, message: DeliveryMessage) => Promise<T>;
+  afterDispatch?: (result: T) => Promise<void>;
   maxMessages?: number;
 }): Promise<ProcessBatchResult> {
   const client = createSqsClient(input.sqs);
@@ -250,6 +251,7 @@ export async function processDeliveryMessages(input: {
     for (const item of received) {
       try {
         let wasDuplicate = false;
+        let dispatchResult: T | undefined;
         await input.db.transaction(async (tx) => {
           const insertResult = await tryInsertInbox(tx, {
             eventId: item.message.eventId,
@@ -261,9 +263,17 @@ export async function processDeliveryMessages(input: {
             return;
           }
 
-          await input.dispatch(tx, item.message);
+          dispatchResult = await input.dispatch(tx, item.message);
           await markInboxProcessed(tx, item.message.eventId);
         });
+
+        if (
+          !wasDuplicate &&
+          input.afterDispatch &&
+          dispatchResult !== undefined
+        ) {
+          await input.afterDispatch(dispatchResult);
+        }
 
         if (wasDuplicate) {
           duplicates += 1;

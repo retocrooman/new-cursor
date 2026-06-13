@@ -7,7 +7,10 @@ import {
   relayPendingOutbox,
 } from "@new-cursor/delivery-feature";
 import type { SqsEnv } from "@new-cursor/utils";
-import { dispatchToSubscribers } from "@new-cursor/worker-dispatch-feature";
+import {
+  dispatchToSubscribers,
+  executePendingRuns,
+} from "@new-cursor/worker-dispatch-feature";
 
 export async function relayAndDispatchAll(input: {
   db: Database;
@@ -27,8 +30,11 @@ export async function relayAndDispatchAll(input: {
     const processResult = await processDeliveryMessages({
       db: input.db,
       sqs: input.sqs,
-      dispatch: async (tx, message) => {
-        await dispatchToSubscribers(tx, message);
+      dispatch: async (tx, message) => dispatchToSubscribers(tx, message),
+      afterDispatch: async (dispatchResult) => {
+        if (dispatchResult.pendingRuns.length > 0) {
+          await executePendingRuns(input.db, dispatchResult.pendingRuns);
+        }
       },
     });
     if (processResult.processed === 0 && processResult.failed > 0) {
