@@ -10,7 +10,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:push": "dotenvx run -f ../../../.env -- sh -c 'drizzle-kit push --force && tsx scripts/sync-task-stage-check.ts'",
+    "db:push": "dotenvx run -f ../../../.env -- sh -c 'drizzle-kit push --force && tsx scripts/sync-task-stage-check.ts && tsx scripts/sync-runs-status-check.ts'",
     "db:push:env": "drizzle-kit push --force",
     "db:studio": "dotenvx run -f ../../../.env -- drizzle-kit studio"
   },

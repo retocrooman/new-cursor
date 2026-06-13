@@ -3,7 +3,10 @@ import { createServer } from "node:http";
 import { createClient } from "@new-cursor/db";
 import { processDeliveryMessages } from "@new-cursor/delivery-feature";
 import { runHealthChecks } from "@new-cursor/utils";
-import { dispatchToSubscribers } from "@new-cursor/worker-dispatch-feature";
+import {
+  dispatchToSubscribers,
+  executePendingRuns,
+} from "@new-cursor/worker-dispatch-feature";
 
 import { env, sqsEnvFromProcess } from "./env";
 
@@ -14,8 +17,11 @@ async function pollQueue(): Promise<void> {
     const result = await processDeliveryMessages({
       db,
       sqs: sqsEnvFromProcess(),
-      dispatch: async (tx, message) => {
-        await dispatchToSubscribers(tx, message);
+      dispatch: async (tx, message) => dispatchToSubscribers(tx, message),
+      afterDispatch: async (dispatchResult) => {
+        if (dispatchResult.pendingRuns.length > 0) {
+          await executePendingRuns(db, dispatchResult.pendingRuns);
+        }
       },
     });
     if (result.processed > 0 || result.duplicates > 0) {

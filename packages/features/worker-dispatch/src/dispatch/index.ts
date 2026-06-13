@@ -1,6 +1,7 @@
 import type { DbOrTx } from "@new-cursor/db";
 import type { DeliveryMessage } from "@new-cursor/events";
 
+import type { PendingRunExecution } from "../pending-run";
 import { resolveSubscribers } from "../resolve-subscribers";
 import {
   applyTaskCreatedStageTransition,
@@ -11,21 +12,24 @@ import {
   handleTaskStageChanged,
   writeRepositoryCloneCompletedIfNeeded,
 } from "./task-stage-changed";
+import { handleTaskWorktreeReady } from "./task-worktree-ready";
 
 type DispatchHandler = (
   tx: DbOrTx,
   input: { message: DeliveryMessage; agentId: string; fanOutIndex: number },
-) => Promise<void>;
+) => Promise<PendingRunExecution | null | undefined>;
 
 const DISPATCH_REGISTRY: Partial<Record<string, DispatchHandler>> = {
   task_created: handleTaskCreated,
   task_stage_changed: handleTaskStageChanged,
+  task_worktree_ready: handleTaskWorktreeReady,
 };
 
 export type DispatchResult = {
   agentCount: number;
   dispatched: number;
   errors: number;
+  pendingRuns: PendingRunExecution[];
 };
 
 /**
@@ -39,18 +43,23 @@ export async function dispatchToSubscribers(
 ): Promise<DispatchResult> {
   const handler = DISPATCH_REGISTRY[message.eventType];
   if (!handler) {
-    return { agentCount: 0, dispatched: 0, errors: 0 };
+    return { agentCount: 0, dispatched: 0, errors: 0, pendingRuns: [] };
   }
 
   const agentIds = await resolveSubscribers(tx, message.eventType);
   if (agentIds.length === 0) {
-    return { agentCount: 0, dispatched: 0, errors: 0 };
+    return { agentCount: 0, dispatched: 0, errors: 0, pendingRuns: [] };
   }
 
   if (message.eventType === "task_created") {
     const transitioned = await applyTaskCreatedStageTransition(tx, message);
     if (!transitioned) {
-      return { agentCount: agentIds.length, dispatched: 0, errors: 0 };
+      return {
+        agentCount: agentIds.length,
+        dispatched: 0,
+        errors: 0,
+        pendingRuns: [],
+      };
     }
   }
 
@@ -60,7 +69,12 @@ export async function dispatchToSubscribers(
   if (message.eventType === "task_stage_changed") {
     worktreeTransition = await applyWorktreeRequestedTransition(tx, message);
     if (worktreeTransition.kind === "skipped") {
-      return { agentCount: agentIds.length, dispatched: 0, errors: 0 };
+      return {
+        agentCount: agentIds.length,
+        dispatched: 0,
+        errors: 0,
+        pendingRuns: [],
+      };
     }
     if (agentIds[0]) {
       await writeRepositoryCloneCompletedIfNeeded(tx, {
@@ -72,14 +86,22 @@ export async function dispatchToSubscribers(
 
   let dispatched = 0;
   let errors = 0;
+  const pendingRuns: PendingRunExecution[] = [];
   for (const [index, agentId] of agentIds.entries()) {
     try {
-      await handler(tx, { message, agentId, fanOutIndex: index });
+      const pending = await handler(tx, {
+        message,
+        agentId,
+        fanOutIndex: index,
+      });
+      if (pending) {
+        pendingRuns.push(pending);
+      }
       dispatched += 1;
     } catch {
       errors += 1;
     }
   }
 
-  return { agentCount: agentIds.length, dispatched, errors };
+  return { agentCount: agentIds.length, dispatched, errors, pendingRuns };
 }

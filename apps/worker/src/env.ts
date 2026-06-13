@@ -13,6 +13,8 @@ export const env = z
     CLONE_ROOT: z.string().min(1).optional(),
     WORKTREE_ROOT: z.string().min(1).optional(),
     DEFAULT_BASE_BRANCH: z.string().min(1).default("main"),
+    CURSOR_API_KEY: z.string().optional(),
+    E2E_LIVE_SDK: z.string().optional(),
   })
   .parse(process.env);
 

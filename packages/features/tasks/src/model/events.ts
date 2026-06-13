@@ -56,6 +56,8 @@ export const TASK_STAGE_VALUES = [
   "worktree_requested",
   "worktree_ready",
   "queued",
+  "implementing",
+  "completed",
 ] as const;
 
 export const taskStageChangedPayloadSchema = z.object({

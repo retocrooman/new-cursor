@@ -22,6 +22,8 @@
     "CLONE_ROOT",
     "WORKTREE_ROOT",
     "DEFAULT_BASE_BRANCH",
+    "CURSOR_API_KEY",
+    "E2E_LIVE_SDK",
     "SKIP_ENV_VALIDATION"
   ],
   "tasks": {

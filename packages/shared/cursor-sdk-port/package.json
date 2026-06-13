@@ -1,0 +1,23 @@
+{
+  "name": "@new-cursor/cursor-sdk-port",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cursor/sdk": "^1.0.18"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "@new-cursor/vitest-config": "workspace:*",
+    "@types/node": "^22.15.29",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

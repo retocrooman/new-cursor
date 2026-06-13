@@ -1,4 +1,11 @@
-import { agents, type DbOrTx, eq, runs, tasks } from "@new-cursor/db";
+import {
+  agents,
+  type DbOrTx,
+  eq,
+  type RunStatus,
+  runs,
+  tasks,
+} from "@new-cursor/db";
 import { defineDomainError } from "@new-cursor/errors";
 import { BaseRepository } from "@new-cursor/repository-kit";
 
@@ -72,6 +79,7 @@ export async function createRun(
     .values({
       taskId: input.taskId,
       agentId: input.agentId,
+      status: "running",
       stage: input.stage ?? null,
       summary: input.summary ?? null,
       createdAt: now,
@@ -99,4 +107,40 @@ export async function listRuns(
   opts?: Parameters<typeof runsRepository.list>[1],
 ) {
   return runsRepository.list(tx, opts);
+}
+
+export async function updateRunAfterSdk(
+  tx: DbOrTx,
+  input: {
+    runId: string;
+    cursorAgentId: string;
+    status: RunStatus;
+    summary?: string | null;
+    errorMessage?: string | null;
+  },
+): Promise<RunProjection> {
+  const existing = await findRunById(tx, input.runId);
+  if (!existing) {
+    throw RunFeatureError.notFound(input.runId);
+  }
+
+  const now = new Date();
+  const [row] = await tx
+    .update(runs)
+    .set({
+      cursorAgentId: input.cursorAgentId,
+      status: input.status,
+      summary: input.summary ?? existing.summary,
+      errorMessage: input.errorMessage ?? null,
+      updatedAt: now,
+      version: existing.version + 1,
+    })
+    .where(eq(runs.id, input.runId))
+    .returning();
+
+  if (!row) {
+    throw RunFeatureError.notFound(input.runId);
+  }
+
+  return toRunProjection(row as RunRow);
 }
