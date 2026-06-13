@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: new-cursor-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: new_cursor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d new_cursor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  elasticmq:
+    image: softwaremill/elasticmq-native:latest
+    container_name: new-cursor-elasticmq
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./elasticmq.conf:/opt/elasticmq.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf 'http://localhost:9324/?Action=ListQueues' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

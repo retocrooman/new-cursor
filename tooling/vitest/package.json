@@ -1,0 +1,25 @@
+{
+  "name": "@new-cursor/vitest-config",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./vitest.config.js",
+    "./node": "./vitest.config.no-setup.js",
+    "./no-setup": "./vitest.config.no-setup.js",
+    "./setup": "./setup.ts"
+  },
+  "files": [
+    "vitest.config.js",
+    "vitest.config.no-setup.js",
+    "setup.ts"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
