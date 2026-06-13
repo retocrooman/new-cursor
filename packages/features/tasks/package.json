@@ -15,6 +15,7 @@
     "@new-cursor/errors": "workspace:*",
     "@new-cursor/events": "workspace:*",
     "@new-cursor/projections": "workspace:*",
+    "@new-cursor/repositories-feature": "workspace:*",
     "@new-cursor/repository-kit": "workspace:*",
     "zod": "^3.25.76"
   },

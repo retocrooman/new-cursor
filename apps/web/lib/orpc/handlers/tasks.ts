@@ -1,10 +1,14 @@
 import {
   createTaskCreatedEvent,
+  findTaskById,
   insertTask,
+  listTasks,
   TASK_AGGREGATE,
+  TaskFeatureError,
   taskCreatedPayload,
 } from "@new-cursor/tasks-feature";
 
+import { mapErrors } from "../errors";
 import { os } from "../os";
 import { eventSpec, withEvent } from "../with-event";
 
@@ -37,8 +41,31 @@ const createHandler = os.tasks.create.handler(
   }),
 );
 
+const listHandler = os.tasks.list.handler(({ context, input }) =>
+  mapErrors(async () =>
+    listTasks(context.db, {
+      search: input.search,
+      sort: input.sort,
+      limit: input.limit,
+      offset: input.offset,
+    }),
+  ),
+);
+
+const getHandler = os.tasks.get.handler(({ context, input }) =>
+  mapErrors(async () => {
+    const projection = await findTaskById(context.db, input.id);
+    if (!projection) {
+      throw TaskFeatureError.notFound(input.id);
+    }
+    return projection;
+  }),
+);
+
 export const tasksHandlers = {
   create: createHandler,
+  list: listHandler,
+  get: getHandler,
 };
 
 export { TASK_AGGREGATE };

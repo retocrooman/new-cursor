@@ -1,0 +1,28 @@
+{
+  "name": "@new-cursor/subscriptions-feature",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@new-cursor/agents-feature": "workspace:*",
+    "@new-cursor/db": "workspace:*",
+    "@new-cursor/errors": "workspace:*",
+    "@new-cursor/events": "workspace:*",
+    "@new-cursor/projections": "workspace:*",
+    "@new-cursor/repository-kit": "workspace:*",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "@new-cursor/vitest-config": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

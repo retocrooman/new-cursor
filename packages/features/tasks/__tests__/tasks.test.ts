@@ -1,4 +1,5 @@
 import { eq, tasks } from "@new-cursor/db";
+import { registerRepository } from "@new-cursor/repositories-feature";
 import { insertTask } from "@new-cursor/tasks-feature";
 import { withRollbackTx } from "@new-cursor/vitest-config/setup";
 import { describe, expect, it } from "vitest";
@@ -20,6 +21,22 @@ describe("insertTask", () => {
         .from(tasks)
         .where(eq(tasks.id, projection.id));
       expect(rows).toHaveLength(1);
+    });
+  });
+
+  it("accepts a valid repositoryId foreign key", async () => {
+    await withRollbackTx(async (tx) => {
+      const repo = await registerRepository(tx, {
+        name: "demo",
+        remoteUrl: "https://github.com/org/demo.git",
+      });
+
+      const projection = await insertTask(tx, {
+        title: "Linked task",
+        repositoryId: repo.id,
+      });
+
+      expect(projection.repositoryId).toBe(repo.id);
     });
   });
 });
