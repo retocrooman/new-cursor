@@ -1,5 +1,5 @@
 {
-  "name": "@new-cursor/delivery-feature",
+  "name": "@new-cursor/worker-dispatch-feature",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,19 +11,16 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.830.0",
     "@new-cursor/db": "workspace:*",
     "@new-cursor/events": "workspace:*",
-    "@new-cursor/utils": "workspace:*",
+    "@new-cursor/subscriptions-feature": "workspace:*",
+    "@new-cursor/tasks-feature": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@new-cursor/agents-feature": "workspace:*",
-    "@new-cursor/subscriptions-feature": "workspace:*",
-    "@new-cursor/tasks-feature": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",
     "@new-cursor/vitest-config": "workspace:*",
-    "@new-cursor/worker-dispatch-feature": "workspace:*",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
   }

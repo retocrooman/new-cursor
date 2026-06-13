@@ -46,7 +46,36 @@
 4. （任意）`pnpm seed:admin` でログイン可能な admin を作成
 5. oRPC `tasks.create` でタスク起票（events + outbox が同一 txn で insert）
 6. relay ログに `relay published` が出る → ElasticMQ `dev-queue` へ publish
-7. worker ログに `worker ack processed=` が出る → inbox 記録 + SQS delete
+7. worker ログに `worker dispatch processed=` が出る → inbox 記録 + dispatch + SQS delete
+
+### ローカル検証（Phase 5 — worker dispatch / event routing）
+
+1. `docker compose up -d` — Postgres + ElasticMQ
+2. `pnpm db:push` — tasks.stage に `worktree_requested` を含む
+3. `pnpm dev` — web (3000) + worker (3001) + relay (3002)
+4. （任意）`pnpm seed:admin` でログイン
+
+**Scenario A — 基本 dispatch**
+
+1. oRPC `agents.create` でエージェントを作成
+2. oRPC `subscriptions.upsert` で `eventTypes: ["task_created"]` を設定
+3. oRPC `tasks.create` でタスク起票
+4. relay が publish → worker が dispatch
+5. DB 確認: `tasks.stage = worktree_requested`、`outbox` に `task_stage_changed`
+
+**Scenario B — 購読マッチ**
+
+1. エージェント A: `task_created` 購読、エージェント B: `run_started` のみ
+2. `tasks.create` → A のみ dispatch（B は side effect なし）
+
+**Scenario C — fan-out**
+
+1. エージェント A/B とも `task_created` 購読
+2. `tasks.create` 1 件 → `task_stage_changed` が 2 件（actorId = 各 agentId）、stage 更新は 1 回
+
+**Scenario D — inbox 冪等**
+
+1. 同一 `eventId` の SQS 再配送 → worker は dispatch をスキップ（inbox duplicate）
 
 - **Postgres 16** — `localhost:5432`（永続ボリューム `postgres_data`）
 - **ElasticMQ** — SQS 互換 API `localhost:9324`、キュー `dev-queue`

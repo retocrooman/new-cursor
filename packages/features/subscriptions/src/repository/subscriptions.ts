@@ -120,3 +120,13 @@ export async function listSubscriptions(
 ) {
   return subscriptionsRepository.list(tx, opts);
 }
+
+export async function listAgentsSubscribedTo(
+  tx: DbOrTx,
+  eventType: string,
+): Promise<string[]> {
+  const rows = await tx.select().from(subscriptions);
+  return rows
+    .filter((row) => row.eventTypes.includes(eventType))
+    .map((row) => row.agentId);
+}
