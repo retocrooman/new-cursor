@@ -1,0 +1,25 @@
+# lefthook 設定（Phase 0: biome + Conventional Commits のみ）
+
+pre-commit:
+  commands:
+    biome-check:
+      glob: "*.{js,ts,jsx,tsx,json}"
+      run: npx @biomejs/biome check --write --unsafe --no-errors-on-unmatched --files-ignore-unknown=true {staged_files} && git add {staged_files}
+
+commit-msg:
+  commands:
+    conventional-commits:
+      run: |
+        msg=$(head -n1 "{1}")
+        case "$msg" in
+          "Merge "*|"Revert "*|"fixup! "*|"squash! "*) exit 0 ;;
+        esac
+        if echo "$msg" | grep -Eq '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9 ._/-]+\))?!?: .+'; then
+          exit 0
+        fi
+        echo ""
+        echo "❌ コミットメッセージが Conventional Commits 形式ではありません。"
+        echo "   例: feat(item): add status transition"
+        echo "   許可 type: feat / fix / docs / style / refactor / perf / test / build / ci / chore / revert"
+        echo ""
+        exit 1
