@@ -32,6 +32,12 @@ importers:
 
   apps/relay:
     dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../packages/shared/db
+      '@new-cursor/delivery-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/delivery
       '@new-cursor/utils':
         specifier: workspace:*
         version: link:../../packages/shared/utils
@@ -66,6 +72,9 @@ importers:
       '@new-cursor/db':
         specifier: workspace:*
         version: link:../../packages/shared/db
+      '@new-cursor/delivery-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/delivery
       '@new-cursor/errors':
         specifier: workspace:*
         version: link:../../packages/shared/errors
@@ -84,6 +93,9 @@ importers:
       '@new-cursor/projections':
         specifier: workspace:*
         version: link:../../packages/shared/projections
+      '@new-cursor/tasks-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/tasks
       '@new-cursor/ui':
         specifier: workspace:*
         version: link:../../packages/shared/ui
@@ -169,6 +181,12 @@ importers:
 
   apps/worker:
     dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../packages/shared/db
+      '@new-cursor/delivery-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/delivery
       '@new-cursor/utils':
         specifier: workspace:*
         version: link:../../packages/shared/utils
@@ -195,6 +213,37 @@ importers:
         specifier: ^3.2.4
         version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
 
+  packages/features/delivery:
+    dependencies:
+      '@aws-sdk/client-sqs':
+        specifier: ^3.830.0
+        version: 3.1068.0
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/utils':
+        specifier: workspace:*
+        version: link:../../shared/utils
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
   packages/features/events:
     dependencies:
       '@new-cursor/db':
@@ -203,6 +252,40 @@ importers:
       '@new-cursor/events':
         specifier: workspace:*
         version: link:../../shared/events
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
+  packages/features/tasks:
+    dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/errors':
+        specifier: workspace:*
+        version: link:../../shared/errors
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../../shared/projections
+      '@new-cursor/repository-kit':
+        specifier: workspace:*
+        version: link:../../shared/repository-kit
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@new-cursor/tsconfig':
         specifier: workspace:*
@@ -325,6 +408,9 @@ importers:
 
   packages/shared/orpc-contract:
     dependencies:
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../projections
       '@orpc/contract':
         specifier: ^1.13.6
         version: 1.14.6

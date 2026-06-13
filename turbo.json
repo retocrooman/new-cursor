@@ -16,6 +16,8 @@
     "NEXT_PUBLIC_APP_URL",
     "WORKER_PORT",
     "RELAY_PORT",
+    "RELAY_POLL_INTERVAL_MS",
+    "WORKER_POLL_INTERVAL_MS",
     "SKIP_ENV_VALIDATION"
   ],
   "tasks": {

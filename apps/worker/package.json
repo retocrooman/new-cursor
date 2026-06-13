@@ -10,6 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@new-cursor/db": "workspace:*",
+    "@new-cursor/delivery-feature": "workspace:*",
     "@new-cursor/utils": "workspace:*",
     "zod": "^3.25.76"
   },

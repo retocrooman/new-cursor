@@ -4,3 +4,4 @@
  * `./index.ts` からは re-export しない）。
  */
 export * from "./append";
+export * from "./outbox";

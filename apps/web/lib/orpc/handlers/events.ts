@@ -1,9 +1,8 @@
-import { type EventDto, listByAggregate } from "@new-cursor/events-feature";
-import { getLogger } from "@new-cursor/logger";
-import type { EventListItem } from "@new-cursor/orpc-contract";
+import { listByAggregate } from "@new-cursor/events-feature";
 
 import { mapErrors } from "../errors";
 import { os } from "../os";
+import { toEventListItem } from "./events-mapper";
 
 /**
  * 履歴表示用 `events.listByAggregate` ハンドラ。
@@ -17,31 +16,11 @@ const listByAggregateHandler = os.events.listByAggregate.handler(
         input.aggregateType,
         input.aggregateId,
       );
-      const events = rows.map((row) => toUnknownEventListItem(row));
+      const events = rows.map((row) => toEventListItem(row));
       return { events };
     });
   },
 );
-
-function toUnknownEventListItem(row: EventDto): EventListItem {
-  getLogger().warn(
-    {
-      aggregateType: row.aggregateType,
-      aggregateId: row.aggregateId,
-      eventType: row.eventType,
-    },
-    "Event payload returned as unknown fallback (no domain schema registered)",
-  );
-  return {
-    aggregateType: row.aggregateType,
-    aggregateId: row.aggregateId,
-    eventType: row.eventType,
-    actorId: row.actorId,
-    createdAt: row.createdAt,
-    version: row.version,
-    payload: null,
-  };
-}
 
 export const eventsHandlers = {
   listByAggregate: listByAggregateHandler,

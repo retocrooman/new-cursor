@@ -38,6 +38,16 @@
    - relay: `curl http://localhost:3002/health`
 5. （任意）初回 admin: `pnpm seed:admin`
 
+### ローカル検証（Phase 3 — outbox / relay / inbox）
+
+1. `docker compose up -d` — Postgres + ElasticMQ
+2. `pnpm db:push` — outbox / inbox / tasks スキーマを含む
+3. `pnpm dev` — web (3000) + worker (3001) + relay (3002)
+4. （任意）`pnpm seed:admin` でログイン可能な admin を作成
+5. oRPC `tasks.create` でタスク起票（events + outbox が同一 txn で insert）
+6. relay ログに `relay published` が出る → ElasticMQ `dev-queue` へ publish
+7. worker ログに `worker ack processed=` が出る → inbox 記録 + SQS delete
+
 - **Postgres 16** — `localhost:5432`（永続ボリューム `postgres_data`）
 - **ElasticMQ** — SQS 互換 API `localhost:9324`、キュー `dev-queue`
 
