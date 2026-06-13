@@ -5,6 +5,7 @@ export const repositoryProjectionSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   remoteUrl: z.string(),
+  clonePath: z.string().nullable(),
   isExternal: z.boolean(),
   ...auditFields,
 });

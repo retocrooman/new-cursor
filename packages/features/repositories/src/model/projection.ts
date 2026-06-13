@@ -5,6 +5,7 @@ export const repositoryProjectionSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   remoteUrl: z.string(),
+  clonePath: z.string().nullable(),
   isExternal: z.boolean(),
   ...auditFields,
 });
@@ -15,6 +16,7 @@ export type RepositoryRow = {
   id: string;
   name: string;
   remoteUrl: string;
+  clonePath: string | null;
   isExternal: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -29,6 +31,7 @@ export function toRepositoryProjection(
     id: row.id,
     name: row.name,
     remoteUrl: row.remoteUrl,
+    clonePath: row.clonePath,
     isExternal: row.isExternal,
     ...toAuditFields(row),
   });

@@ -1,4 +1,4 @@
-import { type DbOrTx, repositories } from "@new-cursor/db";
+import { type DbOrTx, eq, repositories } from "@new-cursor/db";
 import { defineDomainError } from "@new-cursor/errors";
 import { BaseRepository } from "@new-cursor/repository-kit";
 
@@ -80,4 +80,34 @@ export async function listRepositories(
   opts?: Parameters<typeof repositoriesRepository.list>[1],
 ) {
   return repositoriesRepository.list(tx, opts);
+}
+
+export async function updateRepositoryClonePath(
+  tx: DbOrTx,
+  input: {
+    repositoryId: string;
+    clonePath: string;
+  },
+): Promise<RepositoryProjection> {
+  const existing = await findRepositoryById(tx, input.repositoryId);
+  if (!existing) {
+    throw RepositoryFeatureError.notFound(input.repositoryId);
+  }
+
+  const now = new Date();
+  const [row] = await tx
+    .update(repositories)
+    .set({
+      clonePath: input.clonePath,
+      updatedAt: now,
+      version: existing.version + 1,
+    })
+    .where(eq(repositories.id, input.repositoryId))
+    .returning();
+
+  if (!row) {
+    throw RepositoryFeatureError.notFound(input.repositoryId);
+  }
+
+  return toRepositoryProjection(row as RepositoryRow);
 }

@@ -520,6 +520,12 @@ importers:
       '@new-cursor/events':
         specifier: workspace:*
         version: link:../../shared/events
+      '@new-cursor/git-ops':
+        specifier: workspace:*
+        version: link:../../shared/git-ops
+      '@new-cursor/repositories-feature':
+        specifier: workspace:*
+        version: link:../repositories
       '@new-cursor/subscriptions-feature':
         specifier: workspace:*
         version: link:../subscriptions
@@ -592,6 +598,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.10
+      tsx:
+        specifier: ^4.7.1
+        version: 4.22.4
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -620,6 +629,24 @@ importers:
       '@new-cursor/tsconfig':
         specifier: workspace:*
         version: link:../../../tooling/typescript
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
+  packages/shared/git-ops:
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.19.21
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -804,6 +831,12 @@ importers:
       '@new-cursor/events':
         specifier: workspace:*
         version: link:../../packages/shared/events
+      '@new-cursor/git-ops':
+        specifier: workspace:*
+        version: link:../../packages/shared/git-ops
+      '@new-cursor/repositories-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/repositories
       '@new-cursor/subscriptions-feature':
         specifier: workspace:*
         version: link:../../packages/features/subscriptions

@@ -1,4 +1,11 @@
-import { and, type DbOrTx, eq, type TaskStage, tasks } from "@new-cursor/db";
+import {
+  and,
+  type DbOrTx,
+  eq,
+  ne,
+  type TaskStage,
+  tasks,
+} from "@new-cursor/db";
 import { defineDomainError } from "@new-cursor/errors";
 import { BaseRepository } from "@new-cursor/repository-kit";
 
@@ -116,4 +123,82 @@ export async function updateTaskStage(
     projection: toTaskProjection(row as TaskRow),
     updated: true,
   };
+}
+
+export async function findBlockingTaskForRepoBranch(
+  tx: DbOrTx,
+  input: {
+    repositoryId: string;
+    branchName: string;
+    excludeTaskId: string;
+    taskCreatedAt: Date;
+  },
+): Promise<TaskProjection | null> {
+  const rows = await tx
+    .select()
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.repositoryId, input.repositoryId),
+        eq(tasks.branchName, input.branchName),
+        ne(tasks.id, input.excludeTaskId),
+      ),
+    );
+
+  for (const row of rows) {
+    const stage = row.stage as TaskStage;
+    if (stage === "worktree_ready") {
+      return toTaskProjection(row as TaskRow);
+    }
+    if (stage === "worktree_requested" && row.createdAt < input.taskCreatedAt) {
+      return toTaskProjection(row as TaskRow);
+    }
+  }
+
+  return null;
+}
+
+export async function completeWorktreeReady(
+  tx: DbOrTx,
+  input: {
+    taskId: string;
+    worktreePath: string;
+  },
+): Promise<TaskProjection> {
+  const existing = await findTaskById(tx, input.taskId);
+  if (!existing) {
+    throw TaskFeatureError.notFound(input.taskId);
+  }
+
+  if (existing.stage === "worktree_ready") {
+    return existing;
+  }
+
+  if (existing.stage !== "worktree_requested") {
+    return existing;
+  }
+
+  const now = new Date();
+  const [row] = await tx
+    .update(tasks)
+    .set({
+      stage: "worktree_ready",
+      worktreePath: input.worktreePath,
+      updatedAt: now,
+      version: existing.version + 1,
+    })
+    .where(
+      and(eq(tasks.id, input.taskId), eq(tasks.stage, "worktree_requested")),
+    )
+    .returning();
+
+  if (!row) {
+    const current = await findTaskById(tx, input.taskId);
+    if (!current) {
+      throw TaskFeatureError.notFound(input.taskId);
+    }
+    return current;
+  }
+
+  return toTaskProjection(row as TaskRow);
 }
