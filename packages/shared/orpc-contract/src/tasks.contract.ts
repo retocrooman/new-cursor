@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-
+import { sortInputFor } from "./_common/list-filters";
+import { listOutputFor } from "./_common/list-output";
 import { taskProjectionSchema } from "./tasks.schemas";
 
 const createInput = z.object({
@@ -10,8 +11,22 @@ const createInput = z.object({
   parentTaskId: z.string().uuid().nullable().optional(),
 });
 
+const listInput = z.object({
+  search: z.string().optional(),
+  sort: sortInputFor(z.enum(["createdAt", "updatedAt", "title"])).optional(),
+  limit: z.number().int().positive().max(100).optional(),
+  offset: z.number().int().nonnegative().optional(),
+});
+
+const getInput = z.object({
+  id: z.string().uuid(),
+});
+
 export const tasksContract = oc.router({
   create: oc.input(createInput).output(taskProjectionSchema),
+  list: oc.input(listInput).output(listOutputFor(taskProjectionSchema)),
+  get: oc.input(getInput).output(taskProjectionSchema),
 });
 
 export type CreateTaskInput = z.infer<typeof createInput>;
+export type ListTasksInput = z.infer<typeof listInput>;

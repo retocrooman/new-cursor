@@ -12,12 +12,17 @@
     "test:watch": "dotenvx run -f ../../.env.test -- vitest"
   },
   "dependencies": {
+    "@new-cursor/agents-feature": "workspace:*",
     "@new-cursor/auth": "workspace:*",
     "@new-cursor/db": "workspace:*",
     "@new-cursor/errors": "workspace:*",
     "@new-cursor/events": "workspace:*",
     "@new-cursor/delivery-feature": "workspace:*",
     "@new-cursor/events-feature": "workspace:*",
+    "@new-cursor/repositories-feature": "workspace:*",
+    "@new-cursor/rules-feature": "workspace:*",
+    "@new-cursor/runs-feature": "workspace:*",
+    "@new-cursor/subscriptions-feature": "workspace:*",
     "@new-cursor/tasks-feature": "workspace:*",
     "@new-cursor/logger": "workspace:*",
     "@new-cursor/orpc-contract": "workspace:*",

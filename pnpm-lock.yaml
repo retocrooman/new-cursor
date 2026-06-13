@@ -66,6 +66,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/agents
       '@new-cursor/auth':
         specifier: workspace:*
         version: link:../../packages/shared/auth
@@ -93,6 +96,18 @@ importers:
       '@new-cursor/projections':
         specifier: workspace:*
         version: link:../../packages/shared/projections
+      '@new-cursor/repositories-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/repositories
+      '@new-cursor/rules-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/rules
+      '@new-cursor/runs-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/runs
+      '@new-cursor/subscriptions-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/subscriptions
       '@new-cursor/tasks-feature':
         specifier: workspace:*
         version: link:../../packages/features/tasks
@@ -213,6 +228,40 @@ importers:
         specifier: ^3.2.4
         version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
 
+  packages/features/agents:
+    dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/errors':
+        specifier: workspace:*
+        version: link:../../shared/errors
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../../shared/projections
+      '@new-cursor/repository-kit':
+        specifier: workspace:*
+        version: link:../../shared/repository-kit
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
   packages/features/delivery:
     dependencies:
       '@aws-sdk/client-sqs':
@@ -266,6 +315,151 @@ importers:
         specifier: ^3.2.4
         version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
 
+  packages/features/repositories:
+    dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/errors':
+        specifier: workspace:*
+        version: link:../../shared/errors
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../../shared/projections
+      '@new-cursor/repository-kit':
+        specifier: workspace:*
+        version: link:../../shared/repository-kit
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
+  packages/features/rules:
+    dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/errors':
+        specifier: workspace:*
+        version: link:../../shared/errors
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../../shared/projections
+      '@new-cursor/repository-kit':
+        specifier: workspace:*
+        version: link:../../shared/repository-kit
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
+  packages/features/runs:
+    dependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../agents
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/errors':
+        specifier: workspace:*
+        version: link:../../shared/errors
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../../shared/projections
+      '@new-cursor/repository-kit':
+        specifier: workspace:*
+        version: link:../../shared/repository-kit
+      '@new-cursor/tasks-feature':
+        specifier: workspace:*
+        version: link:../tasks
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
+  packages/features/subscriptions:
+    dependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../agents
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/errors':
+        specifier: workspace:*
+        version: link:../../shared/errors
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/projections':
+        specifier: workspace:*
+        version: link:../../shared/projections
+      '@new-cursor/repository-kit':
+        specifier: workspace:*
+        version: link:../../shared/repository-kit
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
   packages/features/tasks:
     dependencies:
       '@new-cursor/db':
@@ -280,6 +474,9 @@ importers:
       '@new-cursor/projections':
         specifier: workspace:*
         version: link:../../shared/projections
+      '@new-cursor/repositories-feature':
+        specifier: workspace:*
+        version: link:../repositories
       '@new-cursor/repository-kit':
         specifier: workspace:*
         version: link:../../shared/repository-kit

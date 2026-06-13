@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { inCheck } from "./enums";
+import { repositories } from "./repositories";
 
 export const TASK_STAGES = ["created"] as const;
 export type TaskStage = (typeof TASK_STAGES)[number];
@@ -23,7 +24,9 @@ export const tasks = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     title: text("title").notNull(),
     branchName: text("branch_name"),
-    repositoryId: uuid("repository_id"),
+    repositoryId: uuid("repository_id").references(() => repositories.id, {
+      onDelete: "set null",
+    }),
     parentTaskId: uuid("parent_task_id"),
     stage: text("stage").notNull().default("created"),
     createdAt: timestamp("created_at", { withTimezone: true })

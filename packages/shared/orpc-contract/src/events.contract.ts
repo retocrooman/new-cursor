@@ -1,6 +1,10 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
-
+import { agentCreatedEventListItem } from "./agents.schemas";
+import { repositoryRegisteredEventListItem } from "./repositories.schemas";
+import { ruleCreatedEventListItem } from "./rules.schemas";
+import { runStartedEventListItem } from "./runs.schemas";
+import { subscriptionUpsertedEventListItem } from "./subscriptions.schemas";
 import { taskCreatedEventListItem } from "./tasks.schemas";
 
 /**
@@ -17,7 +21,14 @@ import { taskCreatedEventListItem } from "./tasks.schemas";
  */
 
 /** feature パッケージが `z.enum([...])` で拡張する aggregate type の土台。 */
-export const EVENT_AGGREGATE_TYPES = ["task"] as const;
+export const EVENT_AGGREGATE_TYPES = [
+  "task",
+  "run",
+  "repository",
+  "agent",
+  "subscription",
+  "rule",
+] as const;
 export type EventAggregateType = (typeof EVENT_AGGREGATE_TYPES)[number];
 
 const listByAggregateInput = z.object({
@@ -44,10 +55,22 @@ const unknownEventListItem = z.object({
  * feature 追加時は `apiEventOf(...)` の配列で `z.discriminatedUnion("eventType", [...])` を定義し、
  * `unknownEventListItem` と `z.union` で合成する。
  */
-export const eventListItemSchemas = [taskCreatedEventListItem] as const;
+export const eventListItemSchemas = [
+  taskCreatedEventListItem,
+  runStartedEventListItem,
+  repositoryRegisteredEventListItem,
+  agentCreatedEventListItem,
+  subscriptionUpsertedEventListItem,
+  ruleCreatedEventListItem,
+] as const;
 
 const eventListItemOrUnknown = z.union([
   taskCreatedEventListItem,
+  runStartedEventListItem,
+  repositoryRegisteredEventListItem,
+  agentCreatedEventListItem,
+  subscriptionUpsertedEventListItem,
+  ruleCreatedEventListItem,
   unknownEventListItem,
 ]);
 export type EventListItem = z.infer<typeof eventListItemOrUnknown>;
