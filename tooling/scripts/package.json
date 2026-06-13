@@ -7,11 +7,13 @@
     "typecheck": "tsc --noEmit",
     "setup:env": "tsx src/setup-env.ts",
     "seed:admin": "dotenvx run -f ../../.env -- tsx src/seed-admin.ts",
+    "seed:all-label": "dotenvx run -f ../../.env -- tsx src/seed-all-label.ts",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@new-cursor/auth": "workspace:*",
     "@new-cursor/db": "workspace:*",
+    "@new-cursor/rules-feature": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {

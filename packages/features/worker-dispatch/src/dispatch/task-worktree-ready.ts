@@ -1,5 +1,6 @@
 import type { DbOrTx } from "@new-cursor/db";
 import type { DeliveryMessage } from "@new-cursor/events";
+import { resolveRulesForAgent } from "@new-cursor/rules-feature";
 import {
   createRun,
   createRunStartedEvent,
@@ -64,6 +65,8 @@ export async function handleTaskWorktreeReady(
     }),
   });
 
+  const resolvedRules = await resolveRulesForAgent(tx, input.agentId);
+
   return {
     runId: run.id,
     taskId: projection.id,
@@ -74,6 +77,10 @@ export async function handleTaskWorktreeReady(
     prompt: buildRunPrompt({
       title: projection.title,
       branchName: payload.branchName,
+      rules: {
+        all: resolvedRules.all.map((rule) => rule.content),
+        agent: resolvedRules.agent.map((rule) => rule.content),
+      },
     }),
     taskVersion: implementingTask.version,
   };

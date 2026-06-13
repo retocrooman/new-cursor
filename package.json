@@ -16,6 +16,7 @@
     "test:e2e": "pnpm --filter @new-cursor/e2e test:e2e",
     "setup:env": "pnpm --filter @new-cursor/scripts setup:env",
     "seed:admin": "pnpm --filter @new-cursor/scripts seed:admin",
+    "seed:all-label": "pnpm --filter @new-cursor/scripts seed:all-label",
     "db:push": "pnpm --filter @new-cursor/db db:push"
   },
   "devDependencies": {

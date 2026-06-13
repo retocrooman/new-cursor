@@ -23,6 +23,7 @@
     "@new-cursor/events": "workspace:*",
     "@new-cursor/git-ops": "workspace:*",
     "@new-cursor/repositories-feature": "workspace:*",
+    "@new-cursor/rules-feature": "workspace:*",
     "@new-cursor/subscriptions-feature": "workspace:*",
     "@new-cursor/tasks-feature": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",

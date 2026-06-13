@@ -385,6 +385,9 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../agents
       '@new-cursor/tsconfig':
         specifier: workspace:*
         version: link:../../../tooling/typescript
@@ -529,6 +532,9 @@ importers:
       '@new-cursor/repositories-feature':
         specifier: workspace:*
         version: link:../repositories
+      '@new-cursor/rules-feature':
+        specifier: workspace:*
+        version: link:../rules
       '@new-cursor/runs-feature':
         specifier: workspace:*
         version: link:../runs
@@ -868,6 +874,9 @@ importers:
       '@new-cursor/repositories-feature':
         specifier: workspace:*
         version: link:../../packages/features/repositories
+      '@new-cursor/rules-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/rules
       '@new-cursor/subscriptions-feature':
         specifier: workspace:*
         version: link:../../packages/features/subscriptions
@@ -904,6 +913,9 @@ importers:
       '@new-cursor/db':
         specifier: workspace:*
         version: link:../../packages/shared/db
+      '@new-cursor/rules-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/rules
       zod:
         specifier: ^3.25.76
         version: 3.25.76
