@@ -10,6 +10,9 @@ export const env = z
     SQS_QUEUE_URL: z.string().url(),
     WORKER_PORT: z.coerce.number().int().positive().default(3001),
     WORKER_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(2000),
+    CLONE_ROOT: z.string().min(1).optional(),
+    WORKTREE_ROOT: z.string().min(1).optional(),
+    DEFAULT_BASE_BRANCH: z.string().min(1).default("main"),
   })
   .parse(process.env);
 

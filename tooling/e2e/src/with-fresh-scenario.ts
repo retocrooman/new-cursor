@@ -46,6 +46,11 @@ export function pushPublicSchema(databaseUrl = getBaseDatabaseUrl()): void {
     env: { ...process.env, DATABASE_URL: databaseUrl, CI: "true" },
     stdio: "pipe",
   });
+  execSync("pnpm exec tsx scripts/sync-task-stage-check.ts", {
+    cwd: dbPackageDir,
+    env: { ...process.env, DATABASE_URL: databaseUrl, CI: "true" },
+    stdio: "pipe",
+  });
 }
 
 async function ensurePublicTemplate(pool: pg.Pool): Promise<void> {

@@ -24,3 +24,27 @@ export function taskCreatedMessage(
     occurredAt: task.createdAt,
   };
 }
+
+export function taskStageChangedMessage(
+  task: TaskProjection,
+  input: {
+    fromStage: "created" | "worktree_requested" | "worktree_ready" | "queued";
+    toStage: "created" | "worktree_requested" | "worktree_ready" | "queued";
+  },
+  eventId = randomUUID(),
+): DeliveryMessage {
+  return {
+    eventId,
+    aggregateType: "task",
+    aggregateId: task.id,
+    eventType: "task_stage_changed",
+    payload: {
+      taskId: task.id,
+      fromStage: input.fromStage,
+      toStage: input.toStage,
+    },
+    actorId: SYSTEM_ACTOR_ID,
+    version: task.version,
+    occurredAt: task.updatedAt,
+  };
+}

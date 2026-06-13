@@ -6,6 +6,11 @@ import {
   applyTaskCreatedStageTransition,
   handleTaskCreated,
 } from "./task-created";
+import {
+  applyWorktreeRequestedTransition,
+  handleTaskStageChanged,
+  writeRepositoryCloneCompletedIfNeeded,
+} from "./task-stage-changed";
 
 type DispatchHandler = (
   tx: DbOrTx,
@@ -14,6 +19,7 @@ type DispatchHandler = (
 
 const DISPATCH_REGISTRY: Partial<Record<string, DispatchHandler>> = {
   task_created: handleTaskCreated,
+  task_stage_changed: handleTaskStageChanged,
 };
 
 export type DispatchResult = {
@@ -24,7 +30,8 @@ export type DispatchResult = {
 
 /**
  * Fan-out failure policy: 1 エージェントの handler 失敗は他エージェントの dispatch を
- * 中断しない。stage 更新は applyTaskCreatedStageTransition で fan-out 前に 1 回だけ。
+ * 中断しない。stage 更新は applyTaskCreatedStageTransition / applyWorktreeRequestedTransition
+ * で fan-out 前に 1 回だけ。
  */
 export async function dispatchToSubscribers(
   tx: DbOrTx,
@@ -44,6 +51,22 @@ export async function dispatchToSubscribers(
     const transitioned = await applyTaskCreatedStageTransition(tx, message);
     if (!transitioned) {
       return { agentCount: agentIds.length, dispatched: 0, errors: 0 };
+    }
+  }
+
+  let worktreeTransition: Awaited<
+    ReturnType<typeof applyWorktreeRequestedTransition>
+  > | null = null;
+  if (message.eventType === "task_stage_changed") {
+    worktreeTransition = await applyWorktreeRequestedTransition(tx, message);
+    if (worktreeTransition.kind === "skipped") {
+      return { agentCount: agentIds.length, dispatched: 0, errors: 0 };
+    }
+    if (agentIds[0]) {
+      await writeRepositoryCloneCompletedIfNeeded(tx, {
+        actorId: agentIds[0],
+        transition: worktreeTransition,
+      });
     }
   }
 

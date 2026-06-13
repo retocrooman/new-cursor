@@ -7,7 +7,8 @@ export const taskProjectionSchema = z.object({
   branchName: z.string().nullable(),
   repositoryId: z.string().uuid().nullable(),
   parentTaskId: z.string().uuid().nullable(),
-  stage: z.enum(["created", "worktree_requested"]),
+  stage: z.enum(["created", "worktree_requested", "worktree_ready", "queued"]),
+  worktreePath: z.string().nullable(),
   ...auditFields,
 });
 

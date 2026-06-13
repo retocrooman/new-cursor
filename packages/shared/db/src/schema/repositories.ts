@@ -18,6 +18,7 @@ export const repositories = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
     remoteUrl: text("remote_url").notNull(),
+    clonePath: text("clone_path"),
     isExternal: boolean("is_external").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

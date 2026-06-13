@@ -13,12 +13,15 @@
   "dependencies": {
     "@new-cursor/db": "workspace:*",
     "@new-cursor/events": "workspace:*",
+    "@new-cursor/git-ops": "workspace:*",
+    "@new-cursor/repositories-feature": "workspace:*",
     "@new-cursor/subscriptions-feature": "workspace:*",
     "@new-cursor/tasks-feature": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@new-cursor/agents-feature": "workspace:*",
+    "@new-cursor/git-ops": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",
     "@new-cursor/vitest-config": "workspace:*",
     "typescript": "~5.8.3",

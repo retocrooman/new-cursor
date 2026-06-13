@@ -20,6 +20,8 @@
     "@new-cursor/db": "workspace:*",
     "@new-cursor/delivery-feature": "workspace:*",
     "@new-cursor/events": "workspace:*",
+    "@new-cursor/git-ops": "workspace:*",
+    "@new-cursor/repositories-feature": "workspace:*",
     "@new-cursor/subscriptions-feature": "workspace:*",
     "@new-cursor/tasks-feature": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",

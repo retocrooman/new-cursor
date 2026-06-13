@@ -51,10 +51,17 @@ export type TaskCreatedEventInput = EventEnvelopeInput & {
   payload: TaskCreatedPayload;
 };
 
+export const TASK_STAGE_VALUES = [
+  "created",
+  "worktree_requested",
+  "worktree_ready",
+  "queued",
+] as const;
+
 export const taskStageChangedPayloadSchema = z.object({
   taskId: z.string().uuid(),
-  fromStage: z.enum(["created", "worktree_requested"]),
-  toStage: z.enum(["created", "worktree_requested"]),
+  fromStage: z.enum(TASK_STAGE_VALUES),
+  toStage: z.enum(TASK_STAGE_VALUES),
 });
 
 export type TaskStageChangedPayload = z.infer<
@@ -84,5 +91,80 @@ export function taskStageChangedPayload(input: {
     taskId: input.taskId,
     fromStage: input.fromStage,
     toStage: input.toStage,
+  };
+}
+
+export const taskWorktreeReadyPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  worktreePath: z.string(),
+  branchName: z.string(),
+});
+
+export type TaskWorktreeReadyPayload = z.infer<
+  typeof taskWorktreeReadyPayloadSchema
+>;
+
+export const taskWorktreeReadyEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_worktree_ready"),
+  payload: taskWorktreeReadyPayloadSchema,
+});
+
+export type TaskWorktreeReadyEvent = z.infer<
+  typeof taskWorktreeReadyEventSchema
+>;
+
+export const createTaskWorktreeReadyEvent = defineEvent<TaskWorktreeReadyEvent>(
+  TASK_AGGREGATE,
+  "task_worktree_ready",
+  taskWorktreeReadyEventSchema,
+);
+
+export function taskWorktreeReadyPayload(input: {
+  taskId: string;
+  worktreePath: string;
+  branchName: string;
+}): TaskWorktreeReadyPayload {
+  return {
+    taskId: input.taskId,
+    worktreePath: input.worktreePath,
+    branchName: input.branchName,
+  };
+}
+
+export const taskQueuedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  repositoryId: z.string().uuid(),
+  branchName: z.string(),
+  blockingTaskId: z.string().uuid(),
+});
+
+export type TaskQueuedPayload = z.infer<typeof taskQueuedPayloadSchema>;
+
+export const taskQueuedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_queued"),
+  payload: taskQueuedPayloadSchema,
+});
+
+export type TaskQueuedEvent = z.infer<typeof taskQueuedEventSchema>;
+
+export const createTaskQueuedEvent = defineEvent<TaskQueuedEvent>(
+  TASK_AGGREGATE,
+  "task_queued",
+  taskQueuedEventSchema,
+);
+
+export function taskQueuedPayload(input: {
+  taskId: string;
+  repositoryId: string;
+  branchName: string;
+  blockingTaskId: string;
+}): TaskQueuedPayload {
+  return {
+    taskId: input.taskId,
+    repositoryId: input.repositoryId,
+    branchName: input.branchName,
+    blockingTaskId: input.blockingTaskId,
   };
 }

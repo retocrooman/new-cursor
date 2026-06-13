@@ -12,7 +12,12 @@ import {
 import { inCheck } from "./enums";
 import { repositories } from "./repositories";
 
-export const TASK_STAGES = ["created", "worktree_requested"] as const;
+export const TASK_STAGES = [
+  "created",
+  "worktree_requested",
+  "worktree_ready",
+  "queued",
+] as const;
 export type TaskStage = (typeof TASK_STAGES)[number];
 
 /**
@@ -29,6 +34,7 @@ export const tasks = pgTable(
     }),
     parentTaskId: uuid("parent_task_id"),
     stage: text("stage").notNull().default("created"),
+    worktreePath: text("worktree_path"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`now()`),
