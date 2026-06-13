@@ -18,6 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@new-cursor/db": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"

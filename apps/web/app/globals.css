@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* shared/ui のクラスを Tailwind の content scan に含める（compile は apps/web 側）。 */
+@source "../../../packages/shared/ui/src/**/*.{ts,tsx}";
+
+/*
+ * semantic token。`@repo/ui` の Button は `bg-primary` / `text-primary-foreground` /
+ * `outline-ring` を使うため、ここで定義する。プロダクト側でブランドカラーに差し替える。
+ */
+@theme {
+  --color-primary: oklch(0.215 0.008 65);
+  --color-primary-foreground: oklch(0.985 0.003 75);
+  --color-ring: oklch(0.5 0.03 75);
+}

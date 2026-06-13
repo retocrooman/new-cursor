@@ -2,6 +2,7 @@
  * `undefined` を除外する型ガード。
  * `[a, b, c].filter(isDefined)` で型を絞り込める。
  */
+export * from "./health";
 export function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
 }

@@ -1,0 +1,26 @@
+{
+  "name": "@new-cursor/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "setup:env": "tsx src/setup-env.ts",
+    "seed:admin": "dotenvx run -f ../../.env -- tsx src/seed-admin.ts",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@new-cursor/auth": "workspace:*",
+    "@new-cursor/db": "workspace:*",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.34.0",
+    "@new-cursor/tsconfig": "workspace:*",
+    "@new-cursor/vitest-config": "workspace:*",
+    "@types/node": "^22.15.29",
+    "tsx": "^4.7.1",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

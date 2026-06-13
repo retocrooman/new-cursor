@@ -1,0 +1,53 @@
+{
+  "name": "@new-cursor/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "dotenvx run -f ../../.env -- next dev --turbopack --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "dotenvx run -f ../../.env.test -- vitest run",
+    "test:watch": "dotenvx run -f ../../.env.test -- vitest"
+  },
+  "dependencies": {
+    "@new-cursor/auth": "workspace:*",
+    "@new-cursor/db": "workspace:*",
+    "@new-cursor/errors": "workspace:*",
+    "@new-cursor/events": "workspace:*",
+    "@new-cursor/events-feature": "workspace:*",
+    "@new-cursor/logger": "workspace:*",
+    "@new-cursor/orpc-contract": "workspace:*",
+    "@new-cursor/projections": "workspace:*",
+    "@new-cursor/ui": "workspace:*",
+    "@new-cursor/utils": "workspace:*",
+    "@orpc/client": "^1.13.6",
+    "@orpc/contract": "^1.13.6",
+    "@orpc/server": "^1.13.6",
+    "@t3-oss/env-nextjs": "^0.13.11",
+    "@tanstack/react-query": "^5.100.11",
+    "better-auth": "1.6.11",
+    "next": "^16.2.6",
+    "nuqs": "^2.8.9",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.34.0",
+    "@new-cursor/tsconfig": "workspace:*",
+    "@new-cursor/vitest-config": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.0",
+    "@tanstack/react-query-devtools": "^5.100.11",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

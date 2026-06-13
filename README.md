@@ -23,10 +23,22 @@
 3. 環境変数を用意: `cp .env.example .env`
 4. ローカル DB と ElasticMQ を起動: `docker compose up -d`
 5. Lint を実行: `pnpm lint`
+6. DB スキーマを反映: `pnpm db:push`
+7. 環境変数をコピー: `pnpm setup:env`（または `cp .env.example .env`）
+8. 全 apps を起動: `pnpm dev`
 
-### 開発用 Docker
+### ローカル検証（Phase 2）
+
+1. `docker compose up -d` — Postgres + ElasticMQ
+2. `pnpm db:push` — auth / events スキーマ
+3. `pnpm dev` — web (3000) + worker (3001) + relay (3002) を並列起動
+4. ヘルスチェック:
+   - web: oRPC `health` / `db.ping`（`/api/rpc`、smoke test 参照）
+   - worker: `curl http://localhost:3001/health`
+   - relay: `curl http://localhost:3002/health`
+5. （任意）初回 admin: `pnpm seed:admin`
 
 - **Postgres 16** — `localhost:5432`（永続ボリューム `postgres_data`）
 - **ElasticMQ** — SQS 互換 API `localhost:9324`、キュー `dev-queue`
 
-apps / packages は Phase 1 以降で追加する。web・worker・relay はホスト上で `pnpm dev` 起動する想定（[docs/AGREEMENTS.md](./docs/AGREEMENTS.md) 参照）。
+apps / packages は Phase 2 で web・worker・relay を追加済み。ホスト上で `pnpm dev` 起動する想定（[docs/AGREEMENTS.md](./docs/AGREEMENTS.md) 参照）。

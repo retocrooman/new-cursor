@@ -9,16 +9,30 @@
     "AWS_ACCESS_KEY_ID",
     "AWS_SECRET_ACCESS_KEY",
     "SQS_ENDPOINT",
-    "SQS_QUEUE_URL"
+    "SQS_QUEUE_URL",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "BETTER_AUTH_TRUSTED_ORIGINS",
+    "NEXT_PUBLIC_APP_URL",
+    "WORKER_PORT",
+    "RELAY_PORT",
+    "SKIP_ENV_VALIDATION"
   ],
   "tasks": {
     "topo": {
       "dependsOn": ["^topo"]
     },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
     "format": {
       "dependsOn": ["^topo"]
     },
     "lint": {
+      "dependsOn": ["^topo"]
+    },
+    "test": {
       "dependsOn": ["^topo"]
     },
     "typecheck": {
