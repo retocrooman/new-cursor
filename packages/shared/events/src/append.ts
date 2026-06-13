@@ -17,14 +17,23 @@ import type { AppendableEvent } from "./envelope";
 export async function appendEvent<T extends AppendableEvent>(
   tx: Transaction | Database,
   event: T,
-): Promise<void> {
-  await tx.insert(events).values({
-    aggregateType: event.aggregateType,
-    aggregateId: event.aggregateId,
-    eventType: event.eventType,
-    payload: event.payload,
-    actorId: event.actorId,
-    occurredAt: new Date(event.occurredAt),
-    version: event.version,
-  });
+): Promise<{ eventId: string }> {
+  const [row] = await tx
+    .insert(events)
+    .values({
+      aggregateType: event.aggregateType,
+      aggregateId: event.aggregateId,
+      eventType: event.eventType,
+      payload: event.payload,
+      actorId: event.actorId,
+      occurredAt: new Date(event.occurredAt),
+      version: event.version,
+    })
+    .returning({ id: events.id });
+
+  if (!row) {
+    throw new Error("appendEvent: insert returned no row");
+  }
+
+  return { eventId: row.id };
 }

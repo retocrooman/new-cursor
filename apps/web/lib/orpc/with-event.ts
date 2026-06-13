@@ -1,6 +1,6 @@
 import type { Transaction } from "@new-cursor/db";
 import type { AppendableEvent, EventEnvelopeInput } from "@new-cursor/events";
-import { appendEvent } from "@new-cursor/events/server";
+import { appendEvent, writeOutbox } from "@new-cursor/events/server";
 
 import type { OrpcContext } from "./context";
 import { envelope, withAdmin, withWrite } from "./events";
@@ -94,13 +94,12 @@ export function withEvent<Input, Result>(opts: {
     const { result, events } = await opts.run({ tx, input, context });
     const list = Array.isArray(events) ? events : [events];
     for (const spec of list) {
-      await appendEvent(
-        tx,
-        spec.factory({
-          ...envelope(spec.aggregate, context, spec.occurredAtFrom),
-          payload: spec.payload,
-        }),
-      );
+      const appendable = spec.factory({
+        ...envelope(spec.aggregate, context, spec.occurredAtFrom),
+        payload: spec.payload,
+      });
+      const { eventId } = await appendEvent(tx, appendable);
+      await writeOutbox(tx, { ...appendable, eventId });
     }
     return result;
   };

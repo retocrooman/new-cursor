@@ -14,6 +14,7 @@
     "generate:openapi": "tsx scripts/generate-openapi.ts"
   },
   "dependencies": {
+    "@new-cursor/projections": "workspace:*",
     "@orpc/contract": "^1.13.6",
     "@orpc/openapi": "^1.13.6",
     "@orpc/zod": "^1.13.6",

@@ -14,11 +14,11 @@
   - [ ] エージェントごとに購読するイベント種別やフィルタを設定できる
   - [ ] ルールをラベル付きでDBに保存できる
   - [ ] タスクと実行記録をDBに保存できる（ES/CQRS は task + run のみ）
-  - [ ] MVP 認証（better-auth）でログインできる
+  - [x] MVP 認証（better-auth）でログインできる
 - アウトボックス・relay・インボックス
-  - [ ] 司令室がトランザクション内で outbox にイベントを書ける
-  - [ ] apps/relay が outbox を ElasticMQ に publish できる
-  - [ ] Worker が SQS から受け取り inbox で冪等処理できる
+  - [x] 司令室がトランザクション内で outbox にイベントを書ける
+  - [x] apps/relay が outbox を ElasticMQ に publish できる
+  - [x] Worker が SQS から受け取り inbox で冪等処理できる
 - イベント処理
   - [ ] SQSイベントでWorkerを起動できる
   - [ ] 承認イベントで待機中タスクを再開できる

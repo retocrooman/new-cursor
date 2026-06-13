@@ -1,6 +1,7 @@
 import { sql } from "@new-cursor/db";
 
 import { eventsHandlers } from "./handlers/events";
+import { tasksHandlers } from "./handlers/tasks";
 import { osPublic } from "./os";
 
 const healthHandler = osPublic.health.handler(() => ({
@@ -29,6 +30,7 @@ export const router = osPublic.router({
     ping: dbPingHandler,
   },
   events: eventsHandlers,
+  tasks: tasksHandlers,
 });
 
 export type Router = typeof router;

@@ -42,7 +42,13 @@ describe("events.listByAggregate tolerates unknown event types", () => {
         aggregateType: "task",
         aggregateId,
         eventType: "task_created",
-        payload: { title: "test" },
+        payload: {
+          taskId: aggregateId,
+          title: "test",
+          branchName: null,
+          repositoryId: null,
+          parentTaskId: null,
+        },
         actorId: SYSTEM_ACTOR_ID,
         version: 1,
       });
@@ -62,7 +68,8 @@ describe("events.listByAggregate tolerates unknown event types", () => {
       });
 
       expect(result.events).toHaveLength(2);
-      expect(result.events[0]?.payload).toBeNull();
+      expect(result.events[0]?.eventType).toBe("task_created");
+      expect(result.events[0]?.payload).toMatchObject({ title: "test" });
       expect(result.events[1]?.payload).toBeNull();
     });
   });

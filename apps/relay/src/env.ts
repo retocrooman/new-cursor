@@ -9,6 +9,7 @@ export const env = z
     SQS_ENDPOINT: z.string().url().optional(),
     SQS_QUEUE_URL: z.string().url(),
     RELAY_PORT: z.coerce.number().int().positive().default(3002),
+    RELAY_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(2000),
   })
   .parse(process.env);
 

@@ -1,6 +1,8 @@
 import { oc } from "@orpc/contract";
 import { z } from "zod";
 
+import { taskCreatedEventListItem } from "./tasks.schemas";
+
 /**
  * 履歴表示用 oRPC contract。1 aggregate のタイムラインを version 昇順で返す。
  *
@@ -15,7 +17,7 @@ import { z } from "zod";
  */
 
 /** feature パッケージが `z.enum([...])` で拡張する aggregate type の土台。 */
-export const EVENT_AGGREGATE_TYPES = [] as const;
+export const EVENT_AGGREGATE_TYPES = ["task"] as const;
 export type EventAggregateType = (typeof EVENT_AGGREGATE_TYPES)[number];
 
 const listByAggregateInput = z.object({
@@ -42,9 +44,12 @@ const unknownEventListItem = z.object({
  * feature 追加時は `apiEventOf(...)` の配列で `z.discriminatedUnion("eventType", [...])` を定義し、
  * `unknownEventListItem` と `z.union` で合成する。
  */
-export const eventListItemSchemas = [] as const;
+export const eventListItemSchemas = [taskCreatedEventListItem] as const;
 
-const eventListItemOrUnknown = unknownEventListItem;
+const eventListItemOrUnknown = z.union([
+  taskCreatedEventListItem,
+  unknownEventListItem,
+]);
 export type EventListItem = z.infer<typeof eventListItemOrUnknown>;
 
 const listByAggregateOutput = z.object({
