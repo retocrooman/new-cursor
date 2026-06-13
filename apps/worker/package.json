@@ -13,6 +13,7 @@
     "@new-cursor/db": "workspace:*",
     "@new-cursor/delivery-feature": "workspace:*",
     "@new-cursor/utils": "workspace:*",
+    "@new-cursor/worker-dispatch-feature": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {

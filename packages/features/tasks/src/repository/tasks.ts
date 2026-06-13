@@ -1,4 +1,4 @@
-import { type DbOrTx, tasks } from "@new-cursor/db";
+import { and, type DbOrTx, eq, type TaskStage, tasks } from "@new-cursor/db";
 import { defineDomainError } from "@new-cursor/errors";
 import { BaseRepository } from "@new-cursor/repository-kit";
 
@@ -74,4 +74,46 @@ export async function listTasks(
   opts?: Parameters<typeof tasksRepository.list>[1],
 ) {
   return tasksRepository.list(tx, opts);
+}
+
+export async function updateTaskStage(
+  tx: DbOrTx,
+  input: {
+    taskId: string;
+    fromStage: TaskStage;
+    toStage: TaskStage;
+  },
+): Promise<{ projection: TaskProjection; updated: boolean }> {
+  const existing = await findTaskById(tx, input.taskId);
+  if (!existing) {
+    throw TaskFeatureError.notFound(input.taskId);
+  }
+
+  if (existing.stage !== input.fromStage) {
+    return { projection: existing, updated: false };
+  }
+
+  const now = new Date();
+  const [row] = await tx
+    .update(tasks)
+    .set({
+      stage: input.toStage,
+      updatedAt: now,
+      version: existing.version + 1,
+    })
+    .where(and(eq(tasks.id, input.taskId), eq(tasks.stage, input.fromStage)))
+    .returning();
+
+  if (!row) {
+    const current = await findTaskById(tx, input.taskId);
+    if (!current) {
+      throw TaskFeatureError.notFound(input.taskId);
+    }
+    return { projection: current, updated: false };
+  }
+
+  return {
+    projection: toTaskProjection(row as TaskRow),
+    updated: true,
+  };
 }

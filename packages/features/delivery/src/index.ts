@@ -7,6 +7,7 @@ import {
 import {
   and,
   asc,
+  type Database,
   type DbOrTx,
   eq,
   inbox,
@@ -139,14 +140,17 @@ export async function tryInsertInbox(
   tx: DbOrTx,
   input: { eventId: string; messageId: string },
 ): Promise<InboxInsertResult> {
+  await tx.execute(sql`SAVEPOINT try_insert_inbox`);
   try {
     await tx.insert(inbox).values({
       eventId: input.eventId,
       messageId: input.messageId,
       status: "received",
     });
+    await tx.execute(sql`RELEASE SAVEPOINT try_insert_inbox`);
     return "inserted";
   } catch (error) {
+    await tx.execute(sql`ROLLBACK TO SAVEPOINT try_insert_inbox`);
     if (isUniqueViolation(error)) {
       return "duplicate";
     }
@@ -217,6 +221,71 @@ export type AckBatchResult = {
   duplicates: number;
   failed: number;
 };
+
+export type ProcessBatchResult = {
+  processed: number;
+  duplicates: number;
+  failed: number;
+};
+
+/** Worker Phase 5: inbox 冪等 + dispatch + SQS delete。 */
+export async function processDeliveryMessages(input: {
+  db: Database;
+  sqs: SqsEnv;
+  dispatch: (tx: DbOrTx, message: DeliveryMessage) => Promise<void>;
+  maxMessages?: number;
+}): Promise<ProcessBatchResult> {
+  const client = createSqsClient(input.sqs);
+  let processed = 0;
+  let duplicates = 0;
+  let failed = 0;
+
+  try {
+    const received = await receiveDeliveryMessages(
+      client,
+      input.sqs.queueUrl,
+      input.maxMessages ?? 10,
+    );
+
+    for (const item of received) {
+      try {
+        let wasDuplicate = false;
+        await input.db.transaction(async (tx) => {
+          const insertResult = await tryInsertInbox(tx, {
+            eventId: item.message.eventId,
+            messageId: item.messageId,
+          });
+
+          if (insertResult === "duplicate") {
+            wasDuplicate = true;
+            return;
+          }
+
+          await input.dispatch(tx, item.message);
+          await markInboxProcessed(tx, item.message.eventId);
+        });
+
+        if (wasDuplicate) {
+          duplicates += 1;
+        } else {
+          processed += 1;
+        }
+
+        await deleteDeliveryMessage(
+          client,
+          input.sqs.queueUrl,
+          item.receiptHandle,
+        );
+      } catch {
+        failed += 1;
+      }
+    }
+  } finally {
+    client.destroy();
+  }
+
+  return { processed, duplicates, failed };
+}
 
 /** Worker Phase 3: inbox 記録 + SQS delete のみ（domain handler なし）。 */
 export async function ackDeliveryMessages(input: {

@@ -205,6 +205,9 @@ importers:
       '@new-cursor/utils':
         specifier: workspace:*
         version: link:../../packages/shared/utils
+      '@new-cursor/worker-dispatch-feature':
+        specifier: workspace:*
+        version: link:../../packages/features/worker-dispatch
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -280,12 +283,24 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../agents
+      '@new-cursor/subscriptions-feature':
+        specifier: workspace:*
+        version: link:../subscriptions
+      '@new-cursor/tasks-feature':
+        specifier: workspace:*
+        version: link:../tasks
       '@new-cursor/tsconfig':
         specifier: workspace:*
         version: link:../../../tooling/typescript
       '@new-cursor/vitest-config':
         specifier: workspace:*
         version: link:../../../tooling/vitest
+      '@new-cursor/worker-dispatch-feature':
+        specifier: workspace:*
+        version: link:../worker-dispatch
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
@@ -484,6 +499,40 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@new-cursor/tsconfig':
+        specifier: workspace:*
+        version: link:../../../tooling/typescript
+      '@new-cursor/vitest-config':
+        specifier: workspace:*
+        version: link:../../../tooling/vitest
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/node@22.19.21)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(tsx@4.22.4)
+
+  packages/features/worker-dispatch:
+    dependencies:
+      '@new-cursor/db':
+        specifier: workspace:*
+        version: link:../../shared/db
+      '@new-cursor/events':
+        specifier: workspace:*
+        version: link:../../shared/events
+      '@new-cursor/subscriptions-feature':
+        specifier: workspace:*
+        version: link:../subscriptions
+      '@new-cursor/tasks-feature':
+        specifier: workspace:*
+        version: link:../tasks
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../agents
       '@new-cursor/tsconfig':
         specifier: workspace:*
         version: link:../../../tooling/typescript
