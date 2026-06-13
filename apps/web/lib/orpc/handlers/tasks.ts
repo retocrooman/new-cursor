@@ -20,6 +20,8 @@ const createHandler = os.tasks.create.handler(
         branchName: input.branchName ?? null,
         repositoryId: input.repositoryId ?? null,
         parentTaskId: input.parentTaskId ?? null,
+        background: input.background ?? null,
+        verificationItems: input.verificationItems ?? null,
       });
 
       return {
@@ -32,6 +34,8 @@ const createHandler = os.tasks.create.handler(
             branchName: projection.branchName,
             repositoryId: projection.repositoryId,
             parentTaskId: projection.parentTaskId,
+            background: projection.background,
+            verificationItems: projection.verificationItems,
           }),
           factory: createTaskCreatedEvent,
           occurredAtFrom: "created",
@@ -48,6 +52,7 @@ const listHandler = os.tasks.list.handler(({ context, input }) =>
       sort: input.sort,
       limit: input.limit,
       offset: input.offset,
+      filters: input.filters,
     }),
   ),
 );

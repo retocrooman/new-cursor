@@ -8,6 +8,9 @@ import {
   runStartedEventListItem,
   subscriptionUpsertedEventListItem,
   taskCreatedEventListItem,
+  taskQueuedEventListItem,
+  taskStageChangedEventListItem,
+  taskWorktreeReadyEventListItem,
 } from "@new-cursor/orpc-contract";
 
 const eventParsers: Array<{
@@ -18,6 +21,33 @@ const eventParsers: Array<{
     eventType: "task_created",
     parse: (base, payload) => {
       const parsed = taskCreatedEventListItem.safeParse({ ...base, payload });
+      return parsed.success ? parsed.data : null;
+    },
+  },
+  {
+    eventType: "task_stage_changed",
+    parse: (base, payload) => {
+      const parsed = taskStageChangedEventListItem.safeParse({
+        ...base,
+        payload,
+      });
+      return parsed.success ? parsed.data : null;
+    },
+  },
+  {
+    eventType: "task_worktree_ready",
+    parse: (base, payload) => {
+      const parsed = taskWorktreeReadyEventListItem.safeParse({
+        ...base,
+        payload,
+      });
+      return parsed.success ? parsed.data : null;
+    },
+  },
+  {
+    eventType: "task_queued",
+    parse: (base, payload) => {
+      const parsed = taskQueuedEventListItem.safeParse({ ...base, payload });
       return parsed.success ? parsed.data : null;
     },
   },

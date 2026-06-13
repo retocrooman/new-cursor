@@ -1,10 +1,12 @@
 import {
   createRun,
   createRunStartedEvent,
+  listRuns,
   RUN_AGGREGATE,
   runStartedPayload,
 } from "@new-cursor/runs-feature";
 
+import { mapErrors } from "../errors";
 import { os } from "../os";
 import { eventSpec, withEvent } from "../with-event";
 
@@ -37,8 +39,20 @@ const createHandler = os.runs.create.handler(
   }),
 );
 
+const listHandler = os.runs.list.handler(({ context, input }) =>
+  mapErrors(async () =>
+    listRuns(context.db, {
+      filters: input.filters,
+      sort: input.sort,
+      limit: input.limit,
+      offset: input.offset,
+    }),
+  ),
+);
+
 export const runsHandlers = {
   create: createHandler,
+  list: listHandler,
 };
 
 export { RUN_AGGREGATE };

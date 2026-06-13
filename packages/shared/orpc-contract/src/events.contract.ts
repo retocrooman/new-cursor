@@ -5,7 +5,12 @@ import { repositoryRegisteredEventListItem } from "./repositories.schemas";
 import { ruleCreatedEventListItem } from "./rules.schemas";
 import { runStartedEventListItem } from "./runs.schemas";
 import { subscriptionUpsertedEventListItem } from "./subscriptions.schemas";
-import { taskCreatedEventListItem } from "./tasks.schemas";
+import {
+  taskCreatedEventListItem,
+  taskQueuedEventListItem,
+  taskStageChangedEventListItem,
+  taskWorktreeReadyEventListItem,
+} from "./tasks.schemas";
 
 /**
  * 履歴表示用 oRPC contract。1 aggregate のタイムラインを version 昇順で返す。
@@ -57,6 +62,9 @@ const unknownEventListItem = z.object({
  */
 export const eventListItemSchemas = [
   taskCreatedEventListItem,
+  taskStageChangedEventListItem,
+  taskWorktreeReadyEventListItem,
+  taskQueuedEventListItem,
   runStartedEventListItem,
   repositoryRegisteredEventListItem,
   agentCreatedEventListItem,
@@ -66,6 +74,9 @@ export const eventListItemSchemas = [
 
 const eventListItemOrUnknown = z.union([
   taskCreatedEventListItem,
+  taskStageChangedEventListItem,
+  taskWorktreeReadyEventListItem,
+  taskQueuedEventListItem,
   runStartedEventListItem,
   repositoryRegisteredEventListItem,
   agentCreatedEventListItem,

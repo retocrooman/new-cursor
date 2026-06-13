@@ -26,4 +26,8 @@ export {
 } from "./session-store";
 export type { StubCommanderAgentOptions } from "./stub-agent";
 export { StubCommanderAgent } from "./stub-agent";
-export { buildCommanderSystemPrompt } from "./system-prompt";
+export {
+  buildCommanderSystemPrompt,
+  buildTaskContextBlock,
+  type CommanderTaskContext,
+} from "./system-prompt";

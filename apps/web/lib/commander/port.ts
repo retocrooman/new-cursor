@@ -1,6 +1,7 @@
 export type CommanderTurnInput = {
   message: string;
   agentId?: string;
+  modelId?: string;
   systemPrompt: string;
   cwd: string;
   apiKey: string;

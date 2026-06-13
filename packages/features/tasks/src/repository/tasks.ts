@@ -3,12 +3,14 @@ import {
   asc,
   type DbOrTx,
   eq,
+  isNull,
   ne,
+  type SQL,
   type TaskStage,
   tasks,
 } from "@new-cursor/db";
 import { defineDomainError } from "@new-cursor/errors";
-import { BaseRepository } from "@new-cursor/repository-kit";
+import { BaseRepository, type FilterInput } from "@new-cursor/repository-kit";
 
 import {
   type TaskProjection,
@@ -18,7 +20,11 @@ import {
 
 export const TaskFeatureError = defineDomainError("Task", "tasks-feature");
 
-class TasksRepository extends BaseRepository<TaskRow, TaskProjection> {
+class TasksRepository extends BaseRepository<
+  TaskRow,
+  TaskProjection,
+  "parentTaskId"
+> {
   protected override readonly table = tasks;
   protected override readonly errors = TaskFeatureError;
   protected override readonly defaultSort = {
@@ -31,6 +37,23 @@ class TasksRepository extends BaseRepository<TaskRow, TaskProjection> {
     title: tasks.title,
   };
   protected override readonly searchableColumns = [tasks.title];
+  protected override readonly filterableFields = ["parentTaskId"] as const;
+
+  protected override buildFilters(
+    filters: Partial<Record<"parentTaskId", FilterInput | null>> | undefined,
+  ): (SQL | undefined)[] {
+    if (!filters) return [];
+    const out: (SQL | undefined)[] = [];
+    if (Object.hasOwn(filters, "parentTaskId")) {
+      const value = filters.parentTaskId;
+      if (value === null) {
+        out.push(isNull(tasks.parentTaskId));
+      } else if (value !== undefined) {
+        out.push(eq(tasks.parentTaskId, value as string));
+      }
+    }
+    return out;
+  }
 
   protected toProjection(row: TaskRow): TaskProjection {
     return toTaskProjection(row);
@@ -46,6 +69,8 @@ export async function insertTask(
     branchName?: string | null;
     repositoryId?: string | null;
     parentTaskId?: string | null;
+    background?: string | null;
+    verificationItems?: string | null;
   },
 ): Promise<TaskProjection> {
   const now = new Date();
@@ -56,6 +81,8 @@ export async function insertTask(
       branchName: input.branchName ?? null,
       repositoryId: input.repositoryId ?? null,
       parentTaskId: input.parentTaskId ?? null,
+      background: input.background ?? null,
+      verificationItems: input.verificationItems ?? null,
       stage: "created",
       createdAt: now,
       updatedAt: now,

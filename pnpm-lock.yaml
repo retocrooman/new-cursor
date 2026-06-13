@@ -523,6 +523,9 @@ importers:
 
   packages/features/worker-dispatch:
     dependencies:
+      '@new-cursor/agents-feature':
+        specifier: workspace:*
+        version: link:../agents
       '@new-cursor/cursor-sdk-port':
         specifier: workspace:*
         version: link:../../shared/cursor-sdk-port
@@ -554,9 +557,6 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
-      '@new-cursor/agents-feature':
-        specifier: workspace:*
-        version: link:../agents
       '@new-cursor/tsconfig':
         specifier: workspace:*
         version: link:../../../tooling/typescript

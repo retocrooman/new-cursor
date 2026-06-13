@@ -74,7 +74,7 @@ export function EventHistoryTab({
 
   if (query.isLoading) {
     return (
-      <div className="px-4 py-6 text-center text-xs text-zinc-500">
+      <div className="px-4 py-6 text-center text-xs text-muted-foreground">
         読み込み中...
       </div>
     );
@@ -82,7 +82,7 @@ export function EventHistoryTab({
 
   if (query.isError) {
     return (
-      <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
         履歴の取得に失敗しました
       </div>
     );
@@ -92,14 +92,14 @@ export function EventHistoryTab({
 
   if (events.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-zinc-300 bg-zinc-50 px-6 py-10 text-center text-xs text-zinc-500">
+      <div className="rounded-md border border-dashed border-border bg-muted px-6 py-10 text-center text-xs text-muted-foreground">
         履歴がまだありません
       </div>
     );
   }
 
   return (
-    <ul className="divide-y divide-zinc-200">
+    <ul className="divide-y divide-border">
       {events.map((event) => {
         const formatted = formatItem(event, formatters);
         return (
@@ -110,31 +110,31 @@ export function EventHistoryTab({
               </Badge>
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="truncate text-sm font-medium text-zinc-900">
+                  <p className="truncate text-sm font-medium text-foreground">
                     {formatted.title}
                   </p>
                   <time
                     dateTime={event.createdAt}
-                    className="shrink-0 text-xs tabular-nums text-zinc-500"
+                    className="shrink-0 text-xs tabular-nums text-muted-foreground"
                   >
                     {formatTimestamp(event.createdAt)}
                   </time>
                 </div>
                 {formatted.summary ? (
-                  <p className="mt-1 text-xs text-zinc-600">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {formatted.summary}
                   </p>
                 ) : null}
-                <div className="mt-1 flex items-center gap-2 text-[11px] text-zinc-500">
+                <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span>by {formatActor(event.actorId)}</span>
                   <span aria-hidden>·</span>
                   <span>v{event.version}</span>
                 </div>
                 <details className="mt-2">
-                  <summary className="cursor-pointer text-[11px] text-zinc-400 hover:text-zinc-600">
+                  <summary className="cursor-pointer text-[11px] text-muted-foreground/70 hover:text-muted-foreground">
                     raw JSON
                   </summary>
-                  <pre className="mt-1 overflow-x-auto rounded-sm bg-zinc-50 p-2 text-[11px] text-zinc-700">
+                  <pre className="mt-1 overflow-x-auto rounded-sm bg-muted p-2 text-[11px] text-foreground">
                     {JSON.stringify(event.payload, null, 2)}
                   </pre>
                 </details>

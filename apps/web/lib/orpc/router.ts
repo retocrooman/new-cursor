@@ -2,6 +2,7 @@ import { sql } from "@new-cursor/db";
 
 import { agentsHandlers } from "./handlers/agents";
 import { commanderHandlers } from "./handlers/commander";
+import { decisionsHandlers } from "./handlers/decisions";
 import { eventsHandlers } from "./handlers/events";
 import { repositoriesHandlers } from "./handlers/repositories";
 import { rulesHandlers } from "./handlers/rules";
@@ -37,6 +38,7 @@ export const router = osPublic.router({
   },
   agents: agentsHandlers,
   commander: commanderHandlers,
+  decisions: decisionsHandlers,
   events: eventsHandlers,
   repositories: repositoriesHandlers,
   rules: rulesHandlers,
@@ -66,6 +68,12 @@ export const readRouter = {
   rules: {
     list: rulesHandlers.list,
     get: rulesHandlers.get,
+  },
+  runs: {
+    list: runsHandlers.list,
+  },
+  decisions: {
+    listByTask: decisionsHandlers.listByTask,
   },
   subscriptions: {
     list: subscriptionsHandlers.list,

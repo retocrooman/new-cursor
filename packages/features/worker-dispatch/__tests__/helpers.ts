@@ -18,6 +18,8 @@ export function taskCreatedMessage(
       branchName: task.branchName,
       repositoryId: task.repositoryId,
       parentTaskId: task.parentTaskId,
+      background: task.background,
+      verificationItems: task.verificationItems,
     },
     actorId: SYSTEM_ACTOR_ID,
     version: task.version,

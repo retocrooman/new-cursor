@@ -35,6 +35,16 @@ export function buildRunPrompt(input: {
     "## Verification",
     "",
     "- [ ] Add verification steps here",
+    "",
+    "## Decision recording",
+    "",
+    "When you reach an important decision point or need user clarification, record it at the end of your response as a single-line JSON block:",
+    "",
+    '{"action":"record_decision","summary":"...","context":"...","userResponse":"..."}',
+    "",
+    "- summary: brief decision summary (required)",
+    "- context: background and options considered",
+    "- userResponse: user's answer or chosen direction (if known)",
   );
 
   return sections.join("\n");

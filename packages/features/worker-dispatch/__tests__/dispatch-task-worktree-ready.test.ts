@@ -3,7 +3,7 @@ import {
   StubCursorSdkAdapter,
   setCursorSdkAdapterForTests,
 } from "@new-cursor/cursor-sdk-port";
-import { eq, outbox, runs, tasks } from "@new-cursor/db";
+import { eq, outbox, runs, taskDecisions, tasks } from "@new-cursor/db";
 import { upsertSubscription } from "@new-cursor/subscriptions-feature";
 import { insertTask } from "@new-cursor/tasks-feature";
 import { testDb, withRollbackTx } from "@new-cursor/vitest-config/setup";
@@ -56,7 +56,10 @@ describe("dispatch task_worktree_ready", () => {
       expect(result.pendingRuns).toHaveLength(1);
       expect(result.pendingRuns[0]?.worktreePath).toBe("/tmp/worktree");
 
-      const runRows = await tx.select().from(runs);
+      const runRows = await tx
+        .select()
+        .from(runs)
+        .where(eq(runs.taskId, task.id));
       expect(runRows).toHaveLength(1);
       expect(runRows[0]?.status).toBe("running");
 
@@ -69,8 +72,9 @@ describe("dispatch task_worktree_ready", () => {
       const startedOutbox = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "run_started"));
+        .where(eq(outbox.aggregateId, runRows[0]!.id));
       expect(startedOutbox).toHaveLength(1);
+      expect(startedOutbox[0]?.eventType).toBe("run_started");
     });
   });
 
@@ -142,6 +146,66 @@ describe("dispatch task_worktree_ready", () => {
     expect(completedOutbox.some((row) => row.aggregateId === run?.id)).toBe(
       true,
     );
+  });
+
+  it("records decision when stub summary contains record_decision JSON", async () => {
+    const stub = new StubCursorSdkAdapter({
+      summary:
+        'done.\n{"action":"record_decision","summary":"lib choice","context":"A vs B","userResponse":"A"}',
+    });
+    setCursorSdkAdapterForTests(stub);
+    let taskId = "";
+    let pendingRuns: Awaited<
+      ReturnType<typeof dispatchToSubscribers>
+    >["pendingRuns"] = [];
+
+    await testDb.transaction(async (tx) => {
+      const agent = await createAgent(tx, { name: "run-worker-decision" });
+      await upsertSubscription(tx, {
+        agentId: agent.id,
+        eventTypes: ["task_worktree_ready"],
+      });
+      const task = await insertTask(tx, {
+        title: "decide me",
+        branchName: "feat/decide",
+      });
+      taskId = task.id;
+      await tx
+        .update(tasks)
+        .set({
+          stage: "worktree_ready",
+          worktreePath: "/tmp/decide-worktree",
+          version: 2,
+        })
+        .where(eq(tasks.id, task.id));
+
+      const result = await dispatchToSubscribers(
+        tx,
+        taskWorktreeReadyMessage(
+          {
+            ...task,
+            stage: "worktree_ready",
+            worktreePath: "/tmp/decide-worktree",
+            version: 2,
+          },
+          {
+            worktreePath: "/tmp/decide-worktree",
+            branchName: "feat/decide",
+          },
+        ),
+      );
+      pendingRuns = result.pendingRuns;
+    });
+
+    await executePendingRuns(testDb, pendingRuns, stub);
+
+    const decisionRows = await testDb
+      .select()
+      .from(taskDecisions)
+      .where(eq(taskDecisions.taskId, taskId));
+    expect(decisionRows).toHaveLength(1);
+    expect(decisionRows[0]?.summary).toBe("lib choice");
+    expect(decisionRows[0]?.agentId).toBe(pendingRuns[0]?.agentId);
   });
 
   it("records error status when stub fails", async () => {

@@ -136,6 +136,37 @@ export async function findAgentById(
   return agentsRepository.findById(tx, id);
 }
 
+export async function updateAgent(
+  tx: DbOrTx,
+  id: string,
+  input: { modelId: string | null },
+): Promise<AgentProjection> {
+  const existing = await findAgentById(tx, id);
+  if (!existing) {
+    throw AgentFeatureError.notFound(id);
+  }
+
+  const [updated] = await tx
+    .update(agents)
+    .set({
+      modelId: input.modelId,
+      updatedAt: new Date(),
+      version: existing.version + 1,
+    })
+    .where(eq(agents.id, id))
+    .returning();
+
+  if (!updated) {
+    throw AgentFeatureError.notFound(id);
+  }
+
+  const projection = await findAgentById(tx, id);
+  if (!projection) {
+    throw AgentFeatureError.notFound(id);
+  }
+  return projection;
+}
+
 export async function listAgents(
   tx: DbOrTx,
   opts?: Parameters<typeof agentsRepository.list>[1],

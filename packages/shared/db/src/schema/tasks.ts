@@ -35,6 +35,8 @@ export const tasks = pgTable(
       onDelete: "set null",
     }),
     parentTaskId: uuid("parent_task_id"),
+    background: text("background"),
+    verificationItems: text("verification_items"),
     stage: text("stage").notNull().default("created"),
     worktreePath: text("worktree_path"),
     createdAt: timestamp("created_at", { withTimezone: true })

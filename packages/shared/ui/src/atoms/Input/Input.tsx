@@ -22,10 +22,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       type={type ?? "text"}
       aria-invalid={invalid || undefined}
       className={cx(
-        "w-full rounded-md border bg-white px-3 py-1.5 text-sm outline-none transition-colors",
+        "h-7 w-full rounded-sm border bg-input px-2 text-sm text-foreground outline-none",
+        "placeholder:text-muted-foreground",
+        "transition-[border-color,box-shadow]",
+        "focus-visible:border-accent focus-visible:ring-1 focus-visible:ring-ring/40",
+        "disabled:cursor-not-allowed disabled:opacity-50",
         invalid
-          ? "border-red-500 focus:border-red-500"
-          : "border-zinc-300 focus:border-zinc-500",
+          ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/40"
+          : "border-border",
         className,
       )}
       {...rest}

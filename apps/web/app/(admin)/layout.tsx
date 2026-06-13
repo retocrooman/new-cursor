@@ -34,7 +34,7 @@ export default async function AdminLayout({
       <NuqsAdapter>
         <div className="flex h-screen overflow-hidden">
           <Sidebar user={session.user} role={role} />
-          <main className="min-h-0 flex-1 overflow-hidden bg-white">
+          <main className="min-h-0 flex-1 overflow-hidden bg-panel">
             {children}
           </main>
         </div>

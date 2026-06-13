@@ -1,8 +1,10 @@
 "use client";
 
+import { Button, FormField, Input } from "@new-cursor/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { signIn } from "@/lib/auth-client";
 import { sanitizeRedirectTarget } from "@/lib/redirect";
 
@@ -37,53 +39,54 @@ function LoginForm() {
 
   return (
     <form className="mt-8 space-y-4" onSubmit={onSubmit}>
-      <label className="block text-sm font-medium">
-        メールアドレス
-        <input
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          autoComplete="email"
-          required
-          className="mt-1 w-full rounded border border-zinc-300 bg-white px-3 py-2 text-base outline-none focus:border-zinc-500"
-          suppressHydrationWarning
-        />
-      </label>
-      <label className="block text-sm font-medium">
-        パスワード
-        <input
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          autoComplete="current-password"
-          required
-          className="mt-1 w-full rounded border border-zinc-300 bg-white px-3 py-2 text-base outline-none focus:border-zinc-500"
-          suppressHydrationWarning
-        />
-      </label>
+      <FormField label="メールアドレス" required>
+        {(fieldProps) => (
+          <Input
+            {...fieldProps}
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            autoComplete="email"
+            required
+            suppressHydrationWarning
+          />
+        )}
+      </FormField>
+      <FormField label="パスワード" required>
+        {(fieldProps) => (
+          <Input
+            {...fieldProps}
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            required
+            suppressHydrationWarning
+          />
+        )}
+      </FormField>
 
       {error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:bg-zinc-400"
-      >
-        {loading ? "サインイン中..." : "サインイン"}
-      </button>
+      <Button type="submit" className="w-full" loading={loading}>
+        サインイン
+      </Button>
     </form>
   );
 }
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
+    <main className="relative mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <h1 className="text-2xl font-semibold">new-cursor</h1>
-      <p className="mt-1 text-sm text-zinc-600">スタッフ用ログイン</p>
+      <p className="mt-1 text-sm text-muted-foreground">スタッフ用ログイン</p>
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

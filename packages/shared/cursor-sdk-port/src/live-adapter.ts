@@ -12,7 +12,9 @@ export class LiveCursorSdkAdapter implements CursorSdkPort {
     try {
       await using agent = await Agent.create({
         apiKey,
-        model: { id: "composer-2.5" },
+        model: {
+          id: input.modelId ?? process.env.COMMANDER_MODEL_ID ?? "composer-2.5",
+        },
         local: { cwd: input.cwd, autoReview: false },
       });
 

@@ -1,3 +1,4 @@
+import { findAgentById } from "@new-cursor/agents-feature";
 import {
   type CursorSdkPort,
   createCursorSdkAdapter,
@@ -9,7 +10,12 @@ import {
   runCompletedPayload,
   updateRunAfterSdk,
 } from "@new-cursor/runs-feature";
-import { findTaskById, updateTaskStage } from "@new-cursor/tasks-feature";
+import {
+  createTaskDecision,
+  findTaskById,
+  parseRecordDecisionActions,
+  updateTaskStage,
+} from "@new-cursor/tasks-feature";
 
 import type { PendingRunExecution } from "./pending-run";
 import { withEvent, workerEventSpec } from "./with-event";
@@ -20,10 +26,14 @@ export async function executePendingRun(
   adapter: CursorSdkPort = createCursorSdkAdapter(),
 ): Promise<void> {
   const apiKey = process.env.CURSOR_API_KEY;
+  const agent = await findAgentById(db, pending.agentId);
+  const modelId =
+    agent?.modelId ?? process.env.COMMANDER_MODEL_ID ?? "composer-2.5";
   const result = await adapter.execute({
     cwd: pending.worktreePath,
     prompt: pending.prompt,
     apiKey,
+    modelId,
   });
 
   await db.transaction(async (tx) => {
@@ -67,6 +77,16 @@ export async function executePendingRun(
           taskId: pending.taskId,
           fromStage: "implementing",
           toStage: "completed",
+        });
+      }
+
+      for (const decision of parseRecordDecisionActions(result.summary ?? "")) {
+        await createTaskDecision(tx, {
+          taskId: pending.taskId,
+          summary: decision.summary,
+          context: decision.context,
+          userResponse: decision.userResponse,
+          agentId: pending.agentId,
         });
       }
       return;

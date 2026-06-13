@@ -8,4 +8,5 @@ export * from "./repositories";
 export * from "./rules";
 export * from "./runs";
 export * from "./subscriptions";
+export * from "./task-decisions";
 export * from "./tasks";
