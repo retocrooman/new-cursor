@@ -1,0 +1,25 @@
+{
+  "name": "@new-cursor/repository-kit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@new-cursor/db": "workspace:*",
+    "@new-cursor/errors": "workspace:*",
+    "drizzle-orm": "^0.44.4"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "@new-cursor/vitest-config": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

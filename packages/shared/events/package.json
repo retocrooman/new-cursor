@@ -1,0 +1,23 @@
+{
+  "name": "@new-cursor/events",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@new-cursor/db": "workspace:*",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

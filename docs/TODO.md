@@ -1,11 +1,11 @@
 # TODO
 
 - モノレポ土台
-  - [ ] monorepo-template を本リポジトリへ移行できる
-  - [ ] Turborepo + pnpm で `@new-cursor/*` スコープの apps/packages を起動できる
-  - [ ] テンプレートの item/user サンプルドメインを除外できる
+  - [x] monorepo-template を本リポジトリへ移行できる
+  - [x] Turborepo + pnpm で `@new-cursor/*` スコープの apps/packages を起動できる
+  - [x] テンプレートの item/user サンプルドメインを除外できる
 - ローカル起動
-  - [ ] docker-compose で DB と ElasticMQ を起動できる
+  - [x] docker-compose で DB と ElasticMQ を起動できる
   - [ ] apps/web・apps/worker・apps/relay をホストで `pnpm dev` 起動できる
   - [ ] ヘルスチェックで各サービスの状態を確認できる
 - 基本データ

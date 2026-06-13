@@ -45,6 +45,9 @@ yarn-error.log*
 # turbo
 .turbo
 
+# drizzle kit push artifacts
+packages/shared/db/drizzle
+
 # playwright mcp
 .playwright-mcp/
 

@@ -1,0 +1,22 @@
+{
+  "name": "@new-cursor/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@new-cursor/db": "workspace:*",
+    "better-auth": "1.6.11"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

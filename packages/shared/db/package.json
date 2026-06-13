@@ -1,0 +1,30 @@
+{
+  "name": "@new-cursor/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "dotenvx run -f ../../../.env -- drizzle-kit push --force",
+    "db:push:env": "drizzle-kit push --force",
+    "db:studio": "dotenvx run -f ../../../.env -- drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.4",
+    "pg": "^8.21.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.34.0",
+    "@new-cursor/tsconfig": "workspace:*",
+    "@types/node": "^20.12.7",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.4",
+    "typescript": "~5.8.3"
+  }
+}
