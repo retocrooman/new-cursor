@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
+  serverExternalPackages: ["@cursor/sdk"],
   transpilePackages: [
     "@new-cursor/db",
     "@new-cursor/errors",

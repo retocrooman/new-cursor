@@ -2,6 +2,7 @@ import { oc } from "@orpc/contract";
 import { z } from "zod";
 
 import { agentsContract } from "./agents.contract";
+import { commanderContract } from "./commander.contract";
 import { eventsContract } from "./events.contract";
 import { repositoriesContract } from "./repositories.contract";
 import { rulesContract } from "./rules.contract";
@@ -29,6 +30,7 @@ export const contract = oc.router({
     ping: dbPing,
   }),
   agents: agentsContract,
+  commander: commanderContract,
   events: eventsContract,
   repositories: repositoriesContract,
   rules: rulesContract,
@@ -43,6 +45,7 @@ export * from "./_common/list-filters";
 export * from "./_common/list-output";
 export * from "./agents.contract";
 export * from "./agents.schemas";
+export * from "./commander.contract";
 export * from "./events.contract";
 export * from "./repositories.contract";
 export * from "./repositories.schemas";

@@ -14,6 +14,7 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "test:e2e": "pnpm --filter @new-cursor/e2e test:e2e",
+    "build": "turbo build",
     "setup:env": "pnpm --filter @new-cursor/scripts setup:env",
     "seed:admin": "pnpm --filter @new-cursor/scripts seed:admin",
     "seed:all-label": "pnpm --filter @new-cursor/scripts seed:all-label",

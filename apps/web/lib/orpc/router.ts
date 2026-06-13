@@ -1,6 +1,7 @@
 import { sql } from "@new-cursor/db";
 
 import { agentsHandlers } from "./handlers/agents";
+import { commanderHandlers } from "./handlers/commander";
 import { eventsHandlers } from "./handlers/events";
 import { repositoriesHandlers } from "./handlers/repositories";
 import { rulesHandlers } from "./handlers/rules";
@@ -35,6 +36,7 @@ export const router = osPublic.router({
     ping: dbPingHandler,
   },
   agents: agentsHandlers,
+  commander: commanderHandlers,
   events: eventsHandlers,
   repositories: repositoriesHandlers,
   rules: rulesHandlers,
