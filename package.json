@@ -13,6 +13,7 @@
     "lint": "biome check",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "test:e2e": "pnpm --filter @new-cursor/e2e test",
     "setup:env": "pnpm --filter @new-cursor/scripts setup:env",
     "seed:admin": "pnpm --filter @new-cursor/scripts seed:admin",
     "db:push": "pnpm --filter @new-cursor/db db:push"
