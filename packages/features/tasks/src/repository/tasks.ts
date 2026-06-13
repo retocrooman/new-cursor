@@ -1,5 +1,6 @@
 import {
   and,
+  asc,
   type DbOrTx,
   eq,
   ne,
@@ -156,6 +157,30 @@ export async function findBlockingTaskForRepoBranch(
   }
 
   return null;
+}
+
+export async function findOldestQueuedTaskForRepoBranch(
+  tx: DbOrTx,
+  input: {
+    repositoryId: string;
+    branchName: string;
+  },
+): Promise<TaskProjection | null> {
+  const rows = await tx
+    .select()
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.repositoryId, input.repositoryId),
+        eq(tasks.branchName, input.branchName),
+        eq(tasks.stage, "queued"),
+      ),
+    )
+    .orderBy(asc(tasks.createdAt))
+    .limit(1);
+
+  const row = rows[0];
+  return row ? toTaskProjection(row as TaskRow) : null;
 }
 
 export async function completeWorktreeReady(

@@ -32,3 +32,25 @@ export async function createTaskWorktree(input: {
 
   return { worktreePath };
 }
+
+export async function removeTaskWorktree(input: {
+  clonePath: string;
+  worktreePath: string;
+}): Promise<void> {
+  if (!fs.existsSync(input.worktreePath)) {
+    return;
+  }
+
+  execFileSync(
+    "git",
+    [
+      "-C",
+      input.clonePath,
+      "worktree",
+      "remove",
+      "--force",
+      input.worktreePath,
+    ],
+    { stdio: "pipe" },
+  );
+}
