@@ -1,0 +1,30 @@
+---
+description: UI changes require browser verification in acceptance criteria
+globs: apps/web/**/*.tsx
+alwaysApply: false
+---
+
+# UI Browser Verification
+
+`apps/web` の UI（components / pages / layouts）を変更するとき、手動の受け入れ項目・テストプランに **cursor-ide-browser MCP（use-browser）での動作確認** を必ず含める。
+
+## 受け入れ項目に書くこと
+
+- [ ] dev server 起動済み（未起動なら起動してから確認）
+- [ ] 対象画面へ `browser_navigate`
+- [ ] `browser_snapshot` で表示・主要 UI を確認
+- [ ] 変更に関わる操作（クリック、入力、選択など）を実行して結果を確認
+- [ ] 必要なら `browser_take_screenshot` で視覚確認
+
+## MCP ワークフロー（基本）
+
+1. `browser_tabs`（action: list）で既存タブを確認
+2. `browser_navigate` で対象 URL へ
+3. 操作前に `browser_lock`（action: lock）
+4. `browser_snapshot` / `browser_click` / `browser_type` 等で検証
+5. 完了後 `browser_lock`（action: unlock）
+
+## PR・報告
+
+- PR の Test plan / 手動チェックリストにも上記を転記する
+- 自己レビューでは browser 確認の実施有無と未確認項目を分けて書く
