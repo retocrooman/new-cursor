@@ -25,7 +25,7 @@ services:
     volumes:
       - ./elasticmq.conf:/opt/elasticmq.conf
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf 'http://localhost:9324/?Action=ListQueues' >/dev/null"]
+      test: ["CMD-SHELL", "wget -qO- 'http://localhost:9324/?Action=ListQueues' >/dev/null"]
       interval: 5s
       timeout: 5s
       retries: 5
