@@ -10,6 +10,7 @@
     "AWS_SECRET_ACCESS_KEY",
     "SQS_ENDPOINT",
     "SQS_QUEUE_URL",
+    "TEST_DATABASE_URL",
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "BETTER_AUTH_TRUSTED_ORIGINS",
@@ -36,6 +37,10 @@
     },
     "test": {
       "dependsOn": ["^topo"]
+    },
+    "test:e2e": {
+      "dependsOn": ["^topo"],
+      "cache": false
     },
     "typecheck": {
       "dependsOn": ["^topo"],

@@ -1,0 +1,33 @@
+{
+  "name": "@new-cursor/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/with-fresh-scenario.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.830.0",
+    "@new-cursor/utils": "workspace:*",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@new-cursor/agents-feature": "workspace:*",
+    "@new-cursor/db": "workspace:*",
+    "@new-cursor/delivery-feature": "workspace:*",
+    "@new-cursor/events": "workspace:*",
+    "@new-cursor/subscriptions-feature": "workspace:*",
+    "@new-cursor/tasks-feature": "workspace:*",
+    "@new-cursor/tsconfig": "workspace:*",
+    "@new-cursor/vitest-config": "workspace:*",
+    "@new-cursor/worker-dispatch-feature": "workspace:*",
+    "@types/node": "^22.15.29",
+    "@types/pg": "^8.20.0",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
