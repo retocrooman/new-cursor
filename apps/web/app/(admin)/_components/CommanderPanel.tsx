@@ -31,7 +31,7 @@ function PlusIcon() {
     <svg
       aria-hidden
       viewBox="0 0 16 16"
-      className="size-4"
+      className="size-3"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"
@@ -118,7 +118,7 @@ export function CommanderPanel() {
   const canSend = Boolean(input.trim()) && !sendMutation.isPending;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col">
       <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-foreground">司令官</h2>
@@ -164,37 +164,40 @@ export function CommanderPanel() {
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t border-border p-2">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full border-t border-border px-4 py-1.5"
+      >
         {selectedTaskQuery.data ? (
-          <p className="mb-1 px-0.5 text-[10px] text-muted-foreground">
+          <p className="mb-1 text-[10px] text-muted-foreground">
             コンテキスト: {selectedTaskQuery.data.title}
           </p>
         ) : null}
-        <div className="flex items-center gap-1 rounded-md border border-border bg-input px-2 py-1 transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-1 focus-within:ring-ring/40">
+        <div className="flex h-7 w-full min-w-0 items-center gap-1 rounded-sm border border-border bg-input pl-1 pr-0.5 transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-1 focus-within:ring-ring/40">
+          <div className="shrink-0">
+            <AgentModelPicker
+              aria-label="司令官のモデル"
+              value={modelId}
+              onChange={handleModelChange}
+              disabled={sendMutation.isPending}
+            />
+          </div>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="メッセージを入力…"
             disabled={sendMutation.isPending}
             aria-label="司令官へのメッセージ"
-            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-w-0 flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
           />
           <button
             type="submit"
             aria-label="送信"
             disabled={!canSend}
-            className="flex size-7 shrink-0 items-center justify-center rounded-sm text-foreground transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex size-5 shrink-0 items-center justify-center rounded-sm text-foreground transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
             {sendMutation.isPending ? <Spinner size="xs" /> : <PlusIcon />}
           </button>
-        </div>
-        <div className="mt-1.5 flex items-center px-0.5">
-          <AgentModelPicker
-            aria-label="司令官のモデル"
-            value={modelId}
-            onChange={handleModelChange}
-            disabled={sendMutation.isPending}
-          />
         </div>
       </form>
     </div>
