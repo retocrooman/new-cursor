@@ -4,6 +4,10 @@ import type { DeliveryMessage } from "@new-cursor/events";
 import type { PendingRunExecution } from "../pending-run";
 import { resolveSubscribers } from "../resolve-subscribers";
 import {
+  applyQueuedReleaseOnRunCompleted,
+  handleRunCompleted,
+} from "./run-completed";
+import {
   applyTaskCreatedStageTransition,
   handleTaskCreated,
 } from "./task-created";
@@ -23,6 +27,7 @@ const DISPATCH_REGISTRY: Partial<Record<string, DispatchHandler>> = {
   task_created: handleTaskCreated,
   task_stage_changed: handleTaskStageChanged,
   task_worktree_ready: handleTaskWorktreeReady,
+  run_completed: handleRunCompleted,
 };
 
 export type DispatchResult = {
@@ -82,6 +87,10 @@ export async function dispatchToSubscribers(
         transition: worktreeTransition,
       });
     }
+  }
+
+  if (message.eventType === "run_completed" && agentIds[0]) {
+    await applyQueuedReleaseOnRunCompleted(tx, message, agentIds[0]);
   }
 
   let dispatched = 0;

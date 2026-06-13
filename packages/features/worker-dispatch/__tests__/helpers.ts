@@ -81,3 +81,35 @@ export function taskWorktreeReadyMessage(
     occurredAt: task.updatedAt,
   };
 }
+
+export function runCompletedMessage(
+  input: {
+    runId: string;
+    taskId: string;
+    agentId: string;
+    status: "completed" | "error";
+    version: number;
+    occurredAt: string;
+  },
+  eventId = randomUUID(),
+): DeliveryMessage {
+  return {
+    eventId,
+    aggregateType: "run",
+    aggregateId: input.runId,
+    eventType: "run_completed",
+    payload: {
+      runId: input.runId,
+      taskId: input.taskId,
+      agentId: input.agentId,
+      status: input.status,
+      stage: "implementing",
+      summary: null,
+      errorMessage: input.status === "error" ? "failed" : null,
+      cursorAgentId: "agent-stub-success",
+    },
+    actorId: SYSTEM_ACTOR_ID,
+    version: input.version,
+    occurredAt: input.occurredAt,
+  };
+}
