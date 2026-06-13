@@ -1,0 +1,27 @@
+{
+  "name": "@new-cursor/orpc-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "generate:openapi": "tsx scripts/generate-openapi.ts"
+  },
+  "dependencies": {
+    "@orpc/contract": "^1.13.6",
+    "@orpc/openapi": "^1.13.6",
+    "@orpc/zod": "^1.13.6",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@new-cursor/tsconfig": "workspace:*",
+    "tsx": "^4.7.1",
+    "typescript": "~5.8.3"
+  }
+}
