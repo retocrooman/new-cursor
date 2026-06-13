@@ -1,4 +1,4 @@
-import { createAgent } from "@new-cursor/agents-feature";
+import { createAgent, updateAgent } from "@new-cursor/agents-feature";
 import { agentLabels, agents, eq } from "@new-cursor/db";
 import { withRollbackTx } from "@new-cursor/vitest-config/setup";
 import { describe, expect, it } from "vitest";
@@ -44,6 +44,24 @@ describe("createAgent", () => {
       });
 
       expect(first.labels[0]?.id).toBe(second.labels[0]?.id);
+    });
+  });
+});
+
+describe("updateAgent", () => {
+  it("updates modelId on an agent", async () => {
+    await withRollbackTx(async (tx) => {
+      const projection = await createAgent(tx, {
+        name: "worker",
+      });
+
+      expect(projection.modelId).toBeNull();
+
+      const updated = await updateAgent(tx, projection.id, {
+        modelId: "gpt-5.5-high",
+      });
+
+      expect(updated.modelId).toBe("gpt-5.5-high");
     });
   });
 });

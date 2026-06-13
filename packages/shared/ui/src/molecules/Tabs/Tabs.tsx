@@ -98,7 +98,7 @@ export function Tabs<T extends string = string>({
       role="tablist"
       aria-label={ariaLabel}
       className={cx(
-        "flex items-center gap-1 border-b border-zinc-200",
+        "flex items-center gap-1 border-b border-border",
         className,
       )}
     >
@@ -120,10 +120,10 @@ export function Tabs<T extends string = string>({
             onClick={() => !item.disabled && onChange(item.id)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cx(
-              "-mb-px border-b-2 px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500",
+              "-mb-px border-b-2 px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
               isActive
-                ? "border-indigo-600 text-indigo-700"
-                : "border-transparent text-zinc-600 hover:text-zinc-900",
+                ? "border-accent text-accent"
+                : "border-transparent text-muted-foreground hover:text-foreground",
               item.disabled && "cursor-not-allowed opacity-60",
             )}
           >

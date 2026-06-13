@@ -5,6 +5,7 @@ export const agentProjectionSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
+  modelId: z.string().nullable(),
   labels: z.array(
     z.object({
       id: z.string().uuid(),

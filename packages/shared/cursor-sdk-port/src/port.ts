@@ -2,6 +2,7 @@ export type CursorRunInput = {
   cwd: string;
   prompt: string;
   apiKey?: string;
+  modelId?: string;
 };
 
 export type CursorRunSuccess = {

@@ -9,6 +9,8 @@ const createInput = z.object({
   branchName: z.string().nullable().optional(),
   repositoryId: z.string().uuid().nullable().optional(),
   parentTaskId: z.string().uuid().nullable().optional(),
+  background: z.string().nullable().optional(),
+  verificationItems: z.string().nullable().optional(),
 });
 
 const listInput = z.object({
@@ -16,6 +18,11 @@ const listInput = z.object({
   sort: sortInputFor(z.enum(["createdAt", "updatedAt", "title"])).optional(),
   limit: z.number().int().positive().max(100).optional(),
   offset: z.number().int().nonnegative().optional(),
+  filters: z
+    .object({
+      parentTaskId: z.union([z.string().uuid(), z.null()]).optional(),
+    })
+    .optional(),
 });
 
 const getInput = z.object({

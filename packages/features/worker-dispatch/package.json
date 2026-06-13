@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@new-cursor/agents-feature": "workspace:*",
     "@new-cursor/cursor-sdk-port": "workspace:*",
     "@new-cursor/db": "workspace:*",
     "@new-cursor/events": "workspace:*",
@@ -23,7 +24,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@new-cursor/agents-feature": "workspace:*",
     "@new-cursor/cursor-sdk-port": "workspace:*",
     "@new-cursor/git-ops": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",

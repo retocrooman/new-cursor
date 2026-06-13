@@ -1,7 +1,10 @@
 "use client";
 
-import type { TaskProjectionDto } from "@new-cursor/orpc-contract";
-import { Badge, TabPanel, Tabs } from "@new-cursor/ui";
+import type {
+  AgentProjectionDto,
+  TaskProjectionDto,
+} from "@new-cursor/orpc-contract";
+import { TabPanel, Tabs } from "@new-cursor/ui";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsString, useQueryState } from "nuqs";
 import { useId, useState } from "react";
@@ -10,17 +13,22 @@ import { orpcBrowser } from "@/lib/orpc/client.browser";
 
 import { DETAIL_HISTORY_TAB_ITEMS, type DetailHistoryTab } from "./drawer-tabs";
 import { EventHistoryTab } from "./EventHistoryTab";
+import { PredictedEventFlow } from "./PredictedEventFlow";
+import { TaskStageIcon } from "./TaskStageIcon";
+import { buildUnifiedTimeline } from "./task-detail-helpers";
 import {
-  TASK_EVENT_FORMATTERS,
-  TASK_STAGE_LABELS,
-} from "./task-event-formatters";
+  DecisionList,
+  StagePipelineStepper,
+  UnifiedTimeline,
+} from "./task-detail-visuals";
+import { TASK_EVENT_FORMATTERS } from "./task-event-formatters";
 
 type Props = {
   repositoriesById: Record<string, string>;
 };
 
 export function TaskDetailColumn({ repositoriesById }: Props) {
-  const [selectedId] = useQueryState("id", parseAsString);
+  const [selectedId, setSelectedId] = useQueryState("id", parseAsString);
   const [tab, setTab] = useState<DetailHistoryTab>("detail");
   const tabsId = useId();
 
@@ -32,7 +40,7 @@ export function TaskDetailColumn({ repositoriesById }: Props) {
 
   if (!selectedId) {
     return (
-      <div className="flex h-full items-center justify-center p-6 text-sm text-zinc-500">
+      <div className="flex h-full items-center justify-center p-6 text-sm text-muted-foreground">
         左のリストからタスクを選択してください
       </div>
     );
@@ -40,30 +48,36 @@ export function TaskDetailColumn({ repositoriesById }: Props) {
 
   if (taskQuery.isLoading) {
     return (
-      <div className="p-6 text-sm text-zinc-500">タスク詳細を読み込み中...</div>
+      <div className="p-6 text-sm text-muted-foreground">
+        タスク詳細を読み込み中...
+      </div>
     );
   }
 
   if (taskQuery.isError || !taskQuery.data) {
     return (
-      <div className="p-6 text-sm text-red-600">
+      <div className="p-6 text-sm text-destructive">
         タスク詳細の取得に失敗しました
       </div>
     );
   }
 
   const task = taskQuery.data;
+  const repoName = repoLabel(task, repositoriesById);
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-zinc-200 px-4 py-3">
-        <h2 className="text-base font-semibold text-zinc-900">{task.title}</h2>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-600">
-          <Badge tone="zinc">
-            {TASK_STAGE_LABELS[task.stage] ?? task.stage}
-          </Badge>
-          <span>{repoLabel(task, repositoriesById)}</span>
-          {task.branchName ? <span>branch: {task.branchName}</span> : null}
+      <div className="border-b border-border px-4 py-2">
+        <h2 className="text-sm font-semibold text-foreground">{task.title}</h2>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+          <TaskStageIcon stage={task.stage} />
+          <span>{repoName}</span>
+          {task.branchName ? (
+            <>
+              <span aria-hidden>·</span>
+              <span className="font-mono">{task.branchName}</span>
+            </>
+          ) : null}
         </div>
       </div>
       <Tabs
@@ -74,10 +88,13 @@ export function TaskDetailColumn({ repositoriesById }: Props) {
         ariaLabel="タスク詳細タブ"
         className="px-4"
       />
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-2">
         <TabPanel idBase={tabsId} activeTabId={tab}>
           {tab === "detail" ? (
-            <TaskDetailPanel task={task} />
+            <TaskDetailPanel
+              task={task}
+              onSelectChildTask={(id) => void setSelectedId(id)}
+            />
           ) : (
             <EventHistoryTab
               aggregateType="task"
@@ -91,29 +108,216 @@ export function TaskDetailColumn({ repositoriesById }: Props) {
   );
 }
 
-function TaskDetailPanel({ task }: { task: TaskProjectionDto }) {
+function TaskDetailPanel({
+  task,
+  onSelectChildTask,
+}: {
+  task: TaskProjectionDto;
+  onSelectChildTask: (taskId: string) => void;
+}) {
+  const eventsQuery = useQuery({
+    queryKey: ["events.listByAggregate", "task", task.id],
+    queryFn: () =>
+      orpcBrowser.events.listByAggregate({
+        aggregateType: "task",
+        aggregateId: task.id,
+      }),
+  });
+
+  const runsQuery = useQuery({
+    queryKey: ["runs.list", task.id],
+    queryFn: () =>
+      orpcBrowser.runs.list({
+        filters: { taskId: task.id },
+        limit: 50,
+      }),
+  });
+
+  const childrenQuery = useQuery({
+    queryKey: ["tasks.list", "children", task.id],
+    queryFn: () =>
+      orpcBrowser.tasks.list({
+        filters: { parentTaskId: task.id },
+        sort: { field: "createdAt", direction: "asc" },
+        limit: 50,
+      }),
+  });
+
+  const agentsQuery = useQuery({
+    queryKey: ["agents.list"],
+    queryFn: () => orpcBrowser.agents.list({ limit: 100 }),
+  });
+
+  const decisionsQuery = useQuery({
+    queryKey: ["decisions.listByTask", task.id],
+    queryFn: () => orpcBrowser.decisions.listByTask({ taskId: task.id }),
+  });
+
+  const events = eventsQuery.data?.events ?? [];
+  const runs = runsQuery.data?.rows ?? [];
+  const childTasks = childrenQuery.data?.rows ?? [];
+  const agentsById = indexAgents(agentsQuery.data?.rows ?? []);
+  const decisions = decisionsQuery.data?.rows ?? [];
+  const timelineEntries = buildUnifiedTimeline(
+    task,
+    events,
+    runs,
+    agentsById,
+    childTasks,
+  );
+  const timelineLoading =
+    eventsQuery.isLoading ||
+    runsQuery.isLoading ||
+    childrenQuery.isLoading ||
+    agentsQuery.isLoading;
+  const timelineError =
+    eventsQuery.isError ||
+    runsQuery.isError ||
+    childrenQuery.isError ||
+    agentsQuery.isError;
+
   return (
-    <dl className="space-y-3 text-sm">
-      <DetailRow label="ID" value={task.id} />
-      <DetailRow
-        label="ステージ"
-        value={TASK_STAGE_LABELS[task.stage] ?? task.stage}
-      />
-      <DetailRow label="ブランチ" value={task.branchName ?? "—"} />
-      <DetailRow label="worktree" value={task.worktreePath ?? "—"} />
-      <DetailRow label="作成" value={task.createdAt} />
-      <DetailRow label="更新" value={task.updatedAt} />
-    </dl>
+    <div className="space-y-3">
+      <StagePipelineStepper stage={task.stage} />
+
+      <CompactBlock title="背景・検証">
+        <div className="space-y-1">
+          <TaskContentField
+            label="背景・目的"
+            emptyMessage="背景・目的はまだ記録されていません。"
+          >
+            {task.background?.trim() ? (
+              <p className="whitespace-pre-wrap text-foreground">
+                {task.background}
+              </p>
+            ) : null}
+          </TaskContentField>
+          <TaskContentField
+            label="検証項目"
+            emptyMessage="検証項目はまだ記録されていません。"
+          >
+            {task.verificationItems?.trim() ? (
+              <VerificationItemsList items={task.verificationItems} />
+            ) : null}
+          </TaskContentField>
+        </div>
+      </CompactBlock>
+
+      <CompactBlock title="意思決定">
+        {decisionsQuery.isLoading ? (
+          <p className="text-xs text-muted-foreground">読み込み中...</p>
+        ) : decisionsQuery.isError ? (
+          <p className="text-xs text-destructive">
+            意思決定の取得に失敗しました
+          </p>
+        ) : (
+          <DecisionList decisions={decisions} agentsById={agentsById} />
+        )}
+      </CompactBlock>
+
+      <section className="space-y-1.5">
+        <header className="flex items-baseline justify-between gap-2">
+          <h3 className="text-[11px] font-medium text-muted-foreground">
+            タイムライン
+          </h3>
+          {timelineEntries.length > 0 ? (
+            <span className="text-[10px] tabular-nums text-muted-foreground">
+              {timelineEntries.length} 件
+            </span>
+          ) : null}
+        </header>
+        {timelineLoading ? (
+          <p className="text-xs text-muted-foreground">読み込み中...</p>
+        ) : timelineError ? (
+          <p className="text-xs text-destructive">
+            タイムラインの取得に失敗しました
+          </p>
+        ) : (
+          <UnifiedTimeline
+            entries={timelineEntries}
+            onSelectChildTask={onSelectChildTask}
+          />
+        )}
+      </section>
+
+      <section className="space-y-1.5">
+        <header>
+          <h3 className="text-[11px] font-medium text-muted-foreground">
+            予想イベント分岐
+          </h3>
+          <p className="text-[10px] text-muted-foreground/80">
+            現在の工程から想定されるイベント経路（破線は未実装）
+          </p>
+        </header>
+        <PredictedEventFlow
+          task={task}
+          events={events}
+          runs={runs.map((run) => ({ status: run.status }))}
+        />
+      </section>
+    </div>
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function TaskContentField({
+  label,
+  emptyMessage,
+  children,
+}: {
+  label: string;
+  emptyMessage: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <dt className="text-xs font-medium text-zinc-500">{label}</dt>
-      <dd className="mt-0.5 break-all text-zinc-900">{value}</dd>
+    <div className="text-xs leading-snug">
+      <span className="font-medium text-muted-foreground">{label}: </span>
+      {children ?? (
+        <span className="text-muted-foreground">{emptyMessage}</span>
+      )}
     </div>
   );
+}
+
+function VerificationItemsList({ items }: { items: string }) {
+  const lines = items
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length <= 1) {
+    return <span className="whitespace-pre-wrap text-foreground">{items}</span>;
+  }
+
+  return (
+    <ul className="mt-0.5 list-inside list-disc space-y-0.5 text-foreground">
+      {lines.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ul>
+  );
+}
+
+function CompactBlock({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-md border border-border bg-muted/30 px-2.5 py-2">
+      <h3 className="mb-1 text-[10px] font-medium text-muted-foreground">
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+function indexAgents(
+  agents: AgentProjectionDto[],
+): Record<string, AgentProjectionDto> {
+  return Object.fromEntries(agents.map((agent) => [agent.id, agent]));
 }
 
 function repoLabel(

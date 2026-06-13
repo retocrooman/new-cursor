@@ -13,6 +13,16 @@ export const taskCreatedPayloadSchema = z.object({
   branchName: z.string().nullable(),
   repositoryId: z.string().uuid().nullable(),
   parentTaskId: z.string().uuid().nullable(),
+  background: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
+  verificationItems: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null),
 });
 
 export type TaskCreatedPayload = z.infer<typeof taskCreatedPayloadSchema>;
@@ -37,6 +47,8 @@ export function taskCreatedPayload(input: {
   branchName: string | null;
   repositoryId: string | null;
   parentTaskId: string | null;
+  background?: string | null;
+  verificationItems?: string | null;
 }): TaskCreatedPayload {
   return {
     taskId: input.id,
@@ -44,6 +56,8 @@ export function taskCreatedPayload(input: {
     branchName: input.branchName,
     repositoryId: input.repositoryId,
     parentTaskId: input.parentTaskId,
+    background: input.background ?? null,
+    verificationItems: input.verificationItems ?? null,
   };
 }
 

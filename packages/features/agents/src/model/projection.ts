@@ -5,6 +5,7 @@ export const agentProjectionSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
+  modelId: z.string().nullable(),
   labels: z.array(
     z.object({
       id: z.string().uuid(),
@@ -20,6 +21,7 @@ export type AgentRow = {
   id: string;
   name: string;
   description: string | null;
+  modelId: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -34,6 +36,7 @@ export function toAgentProjection(
     id: row.id,
     name: row.name,
     description: row.description,
+    modelId: row.modelId,
     labels,
     ...toAuditFields(row),
   });

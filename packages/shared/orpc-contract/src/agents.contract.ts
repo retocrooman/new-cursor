@@ -21,10 +21,16 @@ const getInput = z.object({
   id: z.string().uuid(),
 });
 
+const updateInput = z.object({
+  id: z.string().uuid(),
+  modelId: z.string().nullable(),
+});
+
 export const agentsContract = oc.router({
   create: oc.input(createInput).output(agentProjectionSchema),
   list: oc.input(listInput).output(listOutputFor(agentProjectionSchema)),
   get: oc.input(getInput).output(agentProjectionSchema),
+  update: oc.input(updateInput).output(agentProjectionSchema),
 });
 
 export type CreateAgentInput = z.infer<typeof createInput>;

@@ -17,12 +17,14 @@ export type BadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "className"> & {
 };
 
 const TONE_CLASS: Record<BadgeTone, string> = {
-  zinc: "bg-zinc-100 text-zinc-700",
-  indigo: "bg-indigo-50 text-indigo-700",
-  cyan: "bg-cyan-50 text-cyan-700",
-  emerald: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-800",
-  red: "bg-red-50 text-red-700",
+  zinc: "bg-surface-active text-muted-foreground",
+  indigo:
+    "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300",
+  cyan: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300",
+  emerald:
+    "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
+  amber: "bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
+  red: "bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300",
 };
 
 /**

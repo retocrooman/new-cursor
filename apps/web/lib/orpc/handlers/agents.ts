@@ -6,6 +6,7 @@ import {
   createAgentCreatedEvent,
   findAgentById,
   listAgents,
+  updateAgent,
 } from "@new-cursor/agents-feature";
 
 import { mapErrors } from "../errors";
@@ -60,10 +61,17 @@ const getHandler = os.agents.get.handler(({ context, input }) =>
   }),
 );
 
+const updateHandler = os.agents.update.handler(({ context, input }) =>
+  mapErrors(async () =>
+    updateAgent(context.db, input.id, { modelId: input.modelId }),
+  ),
+);
+
 export const agentsHandlers = {
   create: createHandler,
   list: listHandler,
   get: getHandler,
+  update: updateHandler,
 };
 
 export { AGENT_AGGREGATE };

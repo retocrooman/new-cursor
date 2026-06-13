@@ -8,6 +8,8 @@ export const taskProjectionSchema = z.object({
   branchName: z.string().nullable(),
   repositoryId: z.string().uuid().nullable(),
   parentTaskId: z.string().uuid().nullable(),
+  background: z.string().nullable(),
+  verificationItems: z.string().nullable(),
   stage: z.enum([
     "created",
     "worktree_requested",
@@ -28,6 +30,8 @@ export type TaskRow = {
   branchName: string | null;
   repositoryId: string | null;
   parentTaskId: string | null;
+  background: string | null;
+  verificationItems: string | null;
   stage: string;
   worktreePath: string | null;
   createdAt: Date;
@@ -43,6 +47,8 @@ export function toTaskProjection(row: TaskRow): TaskProjection {
     branchName: row.branchName,
     repositoryId: row.repositoryId,
     parentTaskId: row.parentTaskId,
+    background: row.background,
+    verificationItems: row.verificationItems,
     stage: row.stage as TaskStage,
     worktreePath: row.worktreePath,
     ...toAuditFields(row),

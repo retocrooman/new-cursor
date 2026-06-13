@@ -1,14 +1,88 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* shared/ui のクラスを Tailwind の content scan に含める（compile は apps/web 側）。 */
 @source "../../../packages/shared/ui/src/**/*.{ts,tsx}";
 
 /*
- * semantic token。`@repo/ui` の Button は `bg-primary` / `text-primary-foreground` /
- * `outline-ring` を使うため、ここで定義する。プロダクト側でブランドカラーに差し替える。
+ * Cursor IDE に近い semantic token。
+ * `:root` / `.dark` で CSS 変数を切り替え、`@theme inline` で Tailwind 色に公開する。
  */
-@theme {
-  --color-primary: oklch(0.215 0.008 65);
-  --color-primary-foreground: oklch(0.985 0.003 75);
-  --color-ring: oklch(0.5 0.03 75);
+:root {
+  --background: #fafafa;
+  --foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+  --sidebar: #fafafa;
+  --panel: #ffffff;
+  --surface-hover: #f4f4f5;
+  --surface-active: #e4e4e7;
+  --selected: #eef2ff;
+  --selected-hover: #e0e7ff;
+  --accent: #007acc;
+  --accent-foreground: #ffffff;
+  --input: #ffffff;
+  --ring: oklch(0.5 0.03 75);
+  --primary: oklch(0.215 0.008 65);
+  --primary-foreground: oklch(0.985 0.003 75);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --chat-user: #eef2ff;
+  --chat-user-foreground: #312e81;
+  --chat-assistant: #ffffff;
+  --chat-assistant-foreground: #27272a;
+}
+
+.dark {
+  --background: #1e1e1e;
+  --foreground: #cccccc;
+  --muted: #252526;
+  --muted-foreground: #858585;
+  --border: #3c3c3c;
+  --sidebar: #252526;
+  --panel: #1e1e1e;
+  --surface-hover: #2a2d2e;
+  --surface-active: #37373d;
+  --selected: #37373d;
+  --selected-hover: #3e3e42;
+  --accent: #007acc;
+  --accent-foreground: #ffffff;
+  --input: #3c3c3c;
+  --ring: #007acc;
+  --primary: #007acc;
+  --primary-foreground: #ffffff;
+  --destructive: #f14c4c;
+  --destructive-foreground: #ffffff;
+  --chat-user: #264f78;
+  --chat-user-foreground: #cccccc;
+  --chat-assistant: #252526;
+  --chat-assistant-foreground: #cccccc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-sidebar: var(--sidebar);
+  --color-panel: var(--panel);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-selected: var(--selected);
+  --color-selected-hover: var(--selected-hover);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-chat-user: var(--chat-user);
+  --color-chat-user-foreground: var(--chat-user-foreground);
+  --color-chat-assistant: var(--chat-assistant);
+  --color-chat-assistant-foreground: var(--chat-assistant-foreground);
 }

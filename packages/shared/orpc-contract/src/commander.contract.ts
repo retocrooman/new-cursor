@@ -6,6 +6,8 @@ import { taskProjectionSchema } from "./tasks.schemas";
 const sendInput = z.object({
   message: z.string().min(1),
   agentId: z.string().nullable().optional(),
+  modelId: z.string().nullable().optional(),
+  taskId: z.string().uuid().nullable().optional(),
 });
 
 const sendOutput = z.object({

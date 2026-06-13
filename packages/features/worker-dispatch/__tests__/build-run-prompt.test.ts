@@ -25,6 +25,7 @@ describe("buildRunPrompt", () => {
     );
     expect(prompt).toContain("Title: phase 8");
     expect(prompt).toContain("Branch: feat/phase-8");
+    expect(prompt).toContain("record_decision");
   });
 
   it("omits empty rules sections", () => {

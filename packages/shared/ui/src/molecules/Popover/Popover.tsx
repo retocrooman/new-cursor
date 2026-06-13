@@ -14,7 +14,11 @@ import { cx } from "../../utils";
 
 import { usePopover } from "./use-popover";
 
-export type PopoverPlacement = "bottom-start" | "bottom-end";
+export type PopoverPlacement =
+  | "bottom-start"
+  | "bottom-end"
+  | "top-start"
+  | "top-end";
 
 export type PopoverProps = {
   /** トリガー要素のレンダー関数。`triggerProps` をそのまま `<button>` 等に spread すれば aria 連携が完了する。 */
@@ -49,6 +53,8 @@ export type PopoverProps = {
  * autoplacement / flip / shift が要るほど高度な配置が必要になったら Floating UI
  * の導入を検討する。本コンポーネントは ListPage の filter chip 用途に限定。
  */
+const POPOVER_VIEWPORT_PADDING = 8;
+
 export function Popover({
   trigger,
   children,
@@ -69,21 +75,59 @@ export function Popover({
 
   // trigger の矩形から固定配置の座標を計算する。open 中は scroll / resize にも追従。
   useLayoutEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setPosition(null);
+      return;
+    }
+
+    const gap = 4;
+    const viewportPadding = POPOVER_VIEWPORT_PADDING;
+
     const updatePosition = () => {
       const rect = rootRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const top = rect.bottom + 4;
+
+      const contentHeight = contentRef.current?.offsetHeight ?? 0;
+      const maxBottom = window.innerHeight - viewportPadding;
+      const maxTop = viewportPadding;
+
+      let effectivePlacement = placement;
+      if (placement.startsWith("bottom")) {
+        const wouldClipBelow = rect.bottom + gap + contentHeight > maxBottom;
+        const spaceAbove = rect.top - maxTop;
+        const spaceBelow = maxBottom - rect.bottom;
+        if (wouldClipBelow && spaceAbove > spaceBelow) {
+          effectivePlacement =
+            placement === "bottom-end" ? "top-end" : "top-start";
+        }
+      } else if (placement.startsWith("top")) {
+        const wouldClipAbove = rect.top - gap - contentHeight < maxTop;
+        const spaceAbove = rect.top - maxTop;
+        const spaceBelow = maxBottom - rect.bottom;
+        if (wouldClipAbove && spaceBelow > spaceAbove) {
+          effectivePlacement =
+            placement === "top-end" ? "bottom-end" : "bottom-start";
+        }
+      }
+
+      const opensDown = effectivePlacement.startsWith("bottom");
+      const top = opensDown
+        ? rect.bottom + gap
+        : Math.max(maxTop, rect.top - gap - contentHeight);
+
       setPosition(
-        placement === "bottom-start"
-          ? { top, left: rect.left }
-          : { top, right: window.innerWidth - rect.right },
+        effectivePlacement.endsWith("end")
+          ? { top, right: window.innerWidth - rect.right }
+          : { top, left: rect.left },
       );
     };
+
     updatePosition();
+    const frame = requestAnimationFrame(updatePosition);
     window.addEventListener("resize", updatePosition);
     window.addEventListener("scroll", updatePosition, true);
     return () => {
+      cancelAnimationFrame(frame);
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
@@ -104,9 +148,13 @@ export function Popover({
               id={contentId}
               role="dialog"
               aria-label={ariaLabel}
-              style={position}
+              style={{
+                ...position,
+                maxHeight: `calc(100vh - ${POPOVER_VIEWPORT_PADDING * 2}px)`,
+                overflowY: "auto",
+              }}
               className={cx(
-                "fixed z-[60] min-w-[14rem] rounded-md border border-zinc-200 bg-white p-3 shadow-lg focus:outline-none",
+                "fixed z-[100] min-w-[14rem] rounded-md border border-zinc-200 bg-white p-3 shadow-lg focus:outline-none",
                 contentClassName,
               )}
             >

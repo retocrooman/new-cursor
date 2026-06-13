@@ -19,13 +19,13 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(
     // biome-ignore lint/a11y/noLabelWithoutControl: htmlFor は呼び出し側で対応する atom
     <label
       ref={ref}
-      className={cx("block text-sm font-medium text-zinc-700", className)}
+      className={cx("block text-sm font-medium text-foreground", className)}
       {...rest}
     >
       {children}
       {required ? (
         <>
-          <span aria-hidden="true" className="ml-0.5 text-red-600">
+          <span aria-hidden="true" className="ml-0.5 text-destructive">
             *
           </span>
           <span className="sr-only">（必須）</span>

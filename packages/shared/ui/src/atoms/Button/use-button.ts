@@ -14,21 +14,25 @@ export type UseButtonOptions = {
 };
 
 const BASE_CLASS =
-  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0";
 
 const WRAP_CLASS = "whitespace-normal break-keep";
 const NOWRAP_CLASS = "whitespace-nowrap";
 
 const SIZE_CLASS: Record<ButtonSize, string> = {
-  sm: "px-2.5 py-1 text-xs",
-  md: "px-3 py-1.5 text-sm",
+  sm: "h-7 px-2 text-xs",
+  md: "h-7 px-2.5 text-sm",
 };
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50",
-  ghost: "text-zinc-700 hover:bg-zinc-100",
-  danger: "bg-red-600 text-white hover:bg-red-500",
+  primary:
+    "bg-primary text-primary-foreground hover:bg-primary/85 active:bg-primary/75",
+  secondary:
+    "border border-border bg-input text-foreground hover:bg-surface-hover active:bg-surface-active",
+  ghost:
+    "text-muted-foreground hover:bg-surface-hover hover:text-foreground active:bg-surface-active",
+  danger:
+    "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80",
 };
 
 /**

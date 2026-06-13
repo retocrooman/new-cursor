@@ -18,12 +18,13 @@ export type SelectProps = Omit<
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   function Select({ invalid, className, children, ...rest }, ref) {
     const computed = cx(
-      "block w-full rounded-md border bg-white px-3 py-1.5 text-sm text-zinc-900 shadow-sm outline-none transition-colors",
-      "focus-visible:ring-2",
+      "block h-7 w-full rounded-sm border bg-input px-2 text-sm text-foreground outline-none",
+      "transition-[border-color,box-shadow]",
+      "focus-visible:border-accent focus-visible:ring-1 focus-visible:ring-ring/40",
+      "disabled:cursor-not-allowed disabled:opacity-50",
       invalid
-        ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30"
-        : "border-zinc-300 focus-visible:border-indigo-500 focus-visible:ring-indigo-500/30",
-      "disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-500",
+        ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/40"
+        : "border-border",
       className,
     );
     return (

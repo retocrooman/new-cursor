@@ -1,14 +1,16 @@
 import "server-only";
 
 import { Agent } from "@cursor/sdk";
-
+import { resolveAgentModelId } from "@new-cursor/orpc-contract";
 import type { CommanderAgentPort, CommanderTurnInput } from "./port";
 
 export class LiveCommanderAgent implements CommanderAgentPort {
   async sendTurn(input: CommanderTurnInput) {
+    const envDefault = process.env.COMMANDER_MODEL_ID;
+    const modelId = resolveAgentModelId(input.modelId, envDefault);
     const baseOptions = {
       apiKey: input.apiKey,
-      model: { id: "composer-2.5" },
+      model: { id: modelId },
       local: { cwd: input.cwd, autoReview: false },
     } as const;
 
