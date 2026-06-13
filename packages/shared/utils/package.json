@@ -9,7 +9,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.830.0",
+    "@new-cursor/db": "workspace:*"
+  },
   "devDependencies": {
     "@new-cursor/tsconfig": "workspace:*",
     "typescript": "~5.8.3",

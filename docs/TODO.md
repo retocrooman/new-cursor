@@ -6,8 +6,8 @@
   - [x] テンプレートの item/user サンプルドメインを除外できる
 - ローカル起動
   - [x] docker-compose で DB と ElasticMQ を起動できる
-  - [ ] apps/web・apps/worker・apps/relay をホストで `pnpm dev` 起動できる
-  - [ ] ヘルスチェックで各サービスの状態を確認できる
+  - [x] apps/web・apps/worker・apps/relay をホストで `pnpm dev` 起動できる
+  - [x] ヘルスチェックで各サービスの状態を確認できる
 - 基本データ
   - [ ] リポジトリを登録し、外部 repo は clone できる
   - [ ] エージェントを作成し、複数ラベルを付与できる
