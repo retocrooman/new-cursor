@@ -8,7 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test:e2e": "vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.830.0",
