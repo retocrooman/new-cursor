@@ -19,6 +19,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@new-cursor/agents-feature": "workspace:*",
     "@new-cursor/tsconfig": "workspace:*",
     "@new-cursor/vitest-config": "workspace:*",
     "typescript": "~5.8.3",
