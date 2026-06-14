@@ -18,17 +18,12 @@ export type QueuedReleaseResult =
   | { kind: "skipped" }
   | { kind: "released"; taskId: string };
 
-export async function applyQueuedReleaseOnRunCompleted(
+export async function applyQueuedReleaseForCompletedTask(
   tx: DbOrTx,
-  message: DeliveryMessage,
+  taskId: string,
   actorId: string | undefined,
 ): Promise<QueuedReleaseResult> {
-  const payload = runCompletedPayloadSchema.parse(message.payload);
-  if (payload.status !== "completed") {
-    return { kind: "skipped" };
-  }
-
-  const completedTask = await findTaskById(tx, payload.taskId);
+  const completedTask = await findTaskById(tx, taskId);
   if (
     !completedTask ||
     completedTask.stage !== "completed" ||
@@ -92,6 +87,19 @@ export async function applyQueuedReleaseOnRunCompleted(
   });
 
   return { kind: "released", taskId: projection.id };
+}
+
+export async function applyQueuedReleaseOnRunCompleted(
+  tx: DbOrTx,
+  message: DeliveryMessage,
+  actorId: string | undefined,
+): Promise<QueuedReleaseResult> {
+  const payload = runCompletedPayloadSchema.parse(message.payload);
+  if (payload.status !== "completed") {
+    return { kind: "skipped" };
+  }
+
+  return applyQueuedReleaseForCompletedTask(tx, payload.taskId, actorId);
 }
 
 export async function handleRunCompleted(

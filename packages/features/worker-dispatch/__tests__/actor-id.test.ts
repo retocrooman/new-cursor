@@ -1,5 +1,5 @@
 import { createAgent } from "@new-cursor/agents-feature";
-import { eq, outbox } from "@new-cursor/db";
+import { and, eq, outbox } from "@new-cursor/db";
 import { upsertSubscription } from "@new-cursor/subscriptions-feature";
 import { insertTask } from "@new-cursor/tasks-feature";
 import { withRollbackTx } from "@new-cursor/vitest-config/setup";
@@ -23,7 +23,12 @@ describe("actorId on worker-emitted events", () => {
       const outboxRows = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "task_stage_changed"));
+        .where(
+          and(
+            eq(outbox.eventType, "task_stage_changed"),
+            eq(outbox.aggregateId, task.id),
+          ),
+        );
       expect(outboxRows).toHaveLength(1);
       expect(outboxRows[0]?.actorId).toBe(agent.id);
     });

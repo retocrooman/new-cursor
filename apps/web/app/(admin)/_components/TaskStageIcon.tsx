@@ -12,6 +12,8 @@ const STAGE_TONE: Record<TaskStage, BadgeTone> = {
   worktree_ready: "cyan",
   queued: "indigo",
   implementing: "indigo",
+  verifying: "cyan",
+  waiting: "amber",
   completed: "emerald",
 };
 
@@ -78,6 +80,18 @@ const STAGE_ICONS: Record<TaskStage, ReactNode> = {
     <StageSvg spin>
       <path d="M5 5L2 8l3 3" />
       <path d="M11 5l3 3-3 3" />
+    </StageSvg>
+  ),
+  verifying: (
+    <StageSvg spin>
+      <circle cx="8" cy="8" r="5" />
+      <path d="M8 5v3l2 2" />
+    </StageSvg>
+  ),
+  waiting: (
+    <StageSvg>
+      <path d="M8 3v5" />
+      <circle cx="8" cy="12" r="1" fill="currentColor" stroke="none" />
     </StageSvg>
   ),
   completed: (

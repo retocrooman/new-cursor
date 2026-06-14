@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { eq, outbox } from "@new-cursor/db";
 import {
-  countPendingOutbox,
-  listPendingOutbox,
   markOutboxRelayed,
   tryInsertInbox,
 } from "@new-cursor/delivery-feature";
@@ -26,13 +25,19 @@ describe("outbox repository", () => {
       const { eventId } = await appendEvent(tx, event);
       await writeOutbox(tx, { ...event, eventId });
 
-      expect(await countPendingOutbox(tx)).toBe(1);
-      const pending = await listPendingOutbox(tx);
-      expect(pending).toHaveLength(1);
-      expect(pending[0]?.eventId).toBe(eventId);
+      const rows = await tx
+        .select()
+        .from(outbox)
+        .where(eq(outbox.eventId, eventId));
+      expect(rows).toHaveLength(1);
+      expect(rows[0]?.relayedAt).toBeNull();
 
       await markOutboxRelayed(tx, eventId);
-      expect(await countPendingOutbox(tx)).toBe(0);
+      const relayed = await tx
+        .select()
+        .from(outbox)
+        .where(eq(outbox.eventId, eventId));
+      expect(relayed[0]?.relayedAt).not.toBeNull();
     });
   });
 });

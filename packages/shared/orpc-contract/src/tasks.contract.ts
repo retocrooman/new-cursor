@@ -29,10 +29,15 @@ const getInput = z.object({
   id: z.string().uuid(),
 });
 
+const approveInput = z.object({
+  id: z.string().uuid(),
+});
+
 export const tasksContract = oc.router({
   create: oc.input(createInput).output(taskProjectionSchema),
   list: oc.input(listInput).output(listOutputFor(taskProjectionSchema)),
   get: oc.input(getInput).output(taskProjectionSchema),
+  approve: oc.input(approveInput).output(taskProjectionSchema),
 });
 
 export type CreateTaskInput = z.infer<typeof createInput>;

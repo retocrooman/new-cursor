@@ -12,8 +12,10 @@ import {
 } from "@new-cursor/runs-feature";
 import {
   createTaskDecision,
+  createTaskStageChangedEvent,
   findTaskById,
   parseRecordDecisionActions,
+  taskStageChangedPayload,
   updateTaskStage,
 } from "@new-cursor/tasks-feature";
 
@@ -73,11 +75,28 @@ export async function executePendingRun(
 
       const task = await findTaskById(tx, pending.taskId);
       if (task?.stage === "implementing") {
-        await updateTaskStage(tx, {
+        const { updated, projection } = await updateTaskStage(tx, {
           taskId: pending.taskId,
           fromStage: "implementing",
-          toStage: "completed",
+          toStage: "verifying",
         });
+        if (updated) {
+          await withEvent(tx, {
+            actorId: pending.agentId,
+            run: async () => ({
+              events: workerEventSpec({
+                aggregate: projection,
+                payload: taskStageChangedPayload({
+                  taskId: projection.id,
+                  fromStage: "implementing",
+                  toStage: "verifying",
+                }),
+                factory: createTaskStageChangedEvent,
+                occurredAtFrom: "updated",
+              }),
+            }),
+          });
+        }
       }
 
       for (const decision of parseRecordDecisionActions(result.summary ?? "")) {

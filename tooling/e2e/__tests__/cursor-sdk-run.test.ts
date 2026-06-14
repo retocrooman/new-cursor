@@ -129,7 +129,7 @@ describe("E2E-7B — stub success completes run and task", () => {
     }
   });
 
-  it("emits run_completed and moves task to completed", async () => {
+  it("emits run_completed and moves task to verifying or waiting", async () => {
     setCursorSdkAdapterForTests(stub);
     const fixture = createBareRepoFixture();
     cleanups.push(fixture.cleanup);
@@ -154,6 +154,8 @@ describe("E2E-7B — stub success completes run and task", () => {
               "task_created",
               "task_stage_changed",
               "task_worktree_ready",
+              "task_pr_requested",
+              "task_pr_created",
             ],
           });
           const repository = await registerRepository(tx, {
@@ -189,7 +191,7 @@ describe("E2E-7B — stub success completes run and task", () => {
           .select()
           .from(tasks)
           .where(eq(tasks.id, taskId));
-        expect(taskRows[0]?.stage).toBe("completed");
+        expect(["verifying", "waiting"]).toContain(taskRows[0]?.stage);
 
         const runRows = await db.select().from(runs);
         expect(runRows[0]?.status).toBe("completed");

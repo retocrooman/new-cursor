@@ -1,4 +1,5 @@
 import {
+  approveTask,
   createTaskCreatedEvent,
   findTaskById,
   insertTask,
@@ -9,6 +10,7 @@ import {
 } from "@new-cursor/tasks-feature";
 
 import { mapErrors } from "../errors";
+import { withWrite } from "../events";
 import { os } from "../os";
 import { eventSpec, withEvent } from "../with-event";
 
@@ -67,10 +69,21 @@ const getHandler = os.tasks.get.handler(({ context, input }) =>
   }),
 );
 
+const approveHandler = os.tasks.approve.handler(
+  withWrite(async ({ tx, context, input }) => {
+    const { projection } = await approveTask(tx, {
+      taskId: input.id,
+      approvedBy: context.actorId,
+    });
+    return projection;
+  }),
+);
+
 export const tasksHandlers = {
   create: createHandler,
   list: listHandler,
   get: getHandler,
+  approve: approveHandler,
 };
 
 export { TASK_AGGREGATE };

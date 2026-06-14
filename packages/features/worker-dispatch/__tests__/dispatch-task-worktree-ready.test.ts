@@ -137,7 +137,7 @@ describe("dispatch task_worktree_ready", () => {
       .select()
       .from(tasks)
       .where(eq(tasks.id, taskId));
-    expect(taskRows[0]?.stage).toBe("completed");
+    expect(taskRows[0]?.stage).toBe("verifying");
 
     const completedOutbox = await testDb
       .select()

@@ -18,6 +18,8 @@ export const TASK_STAGES = [
   "worktree_ready",
   "queued",
   "implementing",
+  "verifying",
+  "waiting",
   "completed",
 ] as const;
 export type TaskStage = (typeof TASK_STAGES)[number];
@@ -39,6 +41,7 @@ export const tasks = pgTable(
     verificationItems: text("verification_items"),
     stage: text("stage").notNull().default("created"),
     worktreePath: text("worktree_path"),
+    pullRequestUrl: text("pull_request_url"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`now()`),

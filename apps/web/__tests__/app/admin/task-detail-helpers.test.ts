@@ -15,7 +15,7 @@ describe("task-detail-helpers", () => {
   it("computes stage progress percent", () => {
     expect(stageProgressPercent("created")).toBe(0);
     expect(stageProgressPercent("completed")).toBe(100);
-    expect(stageProgressPercent("implementing")).toBe(80);
+    expect(stageProgressPercent("implementing")).toBe(57);
   });
 
   it("derives completion criteria from stage and events", () => {
@@ -180,6 +180,7 @@ describe("task-detail-helpers", () => {
           verificationItems: null,
           stage: "created",
           worktreePath: null,
+          pullRequestUrl: null,
           createdAt: "2026-06-13T11:00:00.000Z",
           updatedAt: "2026-06-13T11:00:00.000Z",
           deletedAt: null,
@@ -231,7 +232,7 @@ describe("task-detail-helpers", () => {
     );
     expect(
       graph.nodes.find((node) => node.id === "task_pr_requested")?.status,
-    ).toBe("future");
+    ).toBe("predicted");
     expect(graph.edges.some((edge) => edge.style === "dashed")).toBe(true);
   });
 

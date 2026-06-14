@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { createAgent } from "@new-cursor/agents-feature";
-import { eq, events, outbox, tasks } from "@new-cursor/db";
+import { and, eq, events, outbox, tasks } from "@new-cursor/db";
 import { upsertSubscription } from "@new-cursor/subscriptions-feature";
 import { insertTask } from "@new-cursor/tasks-feature";
 import { withRollbackTx } from "@new-cursor/vitest-config/setup";
@@ -57,14 +57,24 @@ describe("inbox duplicate eventId", () => {
       const outboxRows = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "task_stage_changed"));
+        .where(
+          and(
+            eq(outbox.eventType, "task_stage_changed"),
+            eq(outbox.aggregateId, task.id),
+          ),
+        );
       expect(outboxRows).toHaveLength(1);
 
       await dispatchToSubscribers(tx, message);
       const outboxAfter = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "task_stage_changed"));
+        .where(
+          and(
+            eq(outbox.eventType, "task_stage_changed"),
+            eq(outbox.aggregateId, task.id),
+          ),
+        );
       expect(outboxAfter).toHaveLength(1);
     });
   });

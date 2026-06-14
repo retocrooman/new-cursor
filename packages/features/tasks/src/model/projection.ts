@@ -16,9 +16,12 @@ export const taskProjectionSchema = z.object({
     "worktree_ready",
     "queued",
     "implementing",
+    "verifying",
+    "waiting",
     "completed",
   ]),
   worktreePath: z.string().nullable(),
+  pullRequestUrl: z.string().nullable(),
   ...auditFields,
 });
 
@@ -34,6 +37,7 @@ export type TaskRow = {
   verificationItems: string | null;
   stage: string;
   worktreePath: string | null;
+  pullRequestUrl: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -51,6 +55,7 @@ export function toTaskProjection(row: TaskRow): TaskProjection {
     verificationItems: row.verificationItems,
     stage: row.stage as TaskStage,
     worktreePath: row.worktreePath,
+    pullRequestUrl: row.pullRequestUrl,
     ...toAuditFields(row),
   });
 }
