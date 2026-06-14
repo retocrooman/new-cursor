@@ -6,13 +6,13 @@ new-cursor のイベント駆動アーキテクチャで扱う代表イベント
 
 司令室（apps/web）がタスク・実行記録の状態変化を表す。トランザクション内で outbox に書き、relay が SQS 経由で Worker へ届ける。ES/CQRS の記録対象は task と run のみ。
 
-- `task.created` — 司令官チャットまたは API でタスクを起票する。子タスク（エスカレーション）も同イベントで `parentTaskId` を付与して起票する。
+- `task.created` — 司令官チャットまたは API でタスクを起票する。`background`・`verificationItems` を task 行へ永続化する。子タスク（エスカレーション）も同イベントで `parentTaskId` を付与して起票する。
 - `task.worktree.requested` — 起票完了後、Worker に worktree とブランチの作成を依頼する。
 - `task.worktree.ready` — Worker が worktree 作成を完了し、実装工程へ進める。
-- `task.stage.changed` — 固定工程（起票 → 実装 → 検証 → 完了）の遷移を記録し、購読エージェントへルーティングする。
+- `task.stage.changed` — MVP の 6 stage（`created` → `worktree_requested` → `worktree_ready` → `queued` → `implementing` → `completed`）の遷移を記録し、購読エージェントへルーティングする。PR マージ等の拡張 stage は将来追加予定。
 - `task.queued` — 同一 repo+branch の競合により直列待ちに入る。
-- `run.started` — Worker が Local Cursor SDK で worktree を cwd として 1 件実行を開始する。
-- `run.completed` — 1 回の実行が完了し、司令室が次工程または完了判定を行う。
+- `run.started` — Worker が Local Cursor SDK で worktree を cwd として 1 run（1 SDK 呼び出し）を開始する。
+- `run.completed` — 1 run が完了し、司令室が次工程または完了判定を行う。UI タイムラインではエージェント名・トークン消費を表示する。
 - `task.waiting` — 承認・CI・マージ・子タスク完了など外部きっかけを待機する。
 - `task.resumed` — 待機条件が満たされ、中断前の工程から再開する。
 - `task.pr.requested` — 実装・検証完了後、Worker にコミットと PR 作成を依頼する。
@@ -91,7 +91,7 @@ flowchart LR
 
 | イベント | 主なキー |
 | --- | --- |
-| `task.created` | `taskId`, `repositoryId`, `title`, `branchName`, `parentTaskId`（子のみ） |
+| `task.created` | `taskId`, `repositoryId`, `title`, `branchName`, `background`, `verificationItems`, `parentTaskId`（子のみ） |
 | `task.stage.changed` | `taskId`, `fromStage`, `toStage` |
 | `run.started` / `run.completed` | `taskId`, `runId`, `agentId`, `stage`, `summary` |
 | `task.waiting` / `task.resumed` | `taskId`, `waitingFor` / `resumeReason` |
@@ -101,5 +101,7 @@ flowchart LR
 
 ### 購読ルーティングと UI
 
-- エージェントごとに購読するイベント種別とフィルタを設定し、条件一致時に SQS で 1 件ずつ届ける。
-- タスクリストの「最後のイベント」、ダッシュボードの「イベントヒストリー」はドメインイベントの要約を表示する。詳細は [UI.md](./UI.md)。
+- エージェントごとに購読するイベント種別とフィルタを設定し、条件一致時に SQS で 1 件ずつ届ける。購読は処理候補の設定であり、タスクへの固定担当割当ではない。
+- タスクリストの「最後のイベント」は親タスクのドメインイベント要約を表示する。
+- タスク詳細の統合タイムラインはドメインイベント・run・子タスク起票を時系列で混在表示する。run 行にエージェント名・トークンを出す。
+- 意思決定リストはドメインイベントからは組み立てず、`task_decisions` テーブル（`decisions.create` / `record_decision`）を表示する。詳細は [UI.md](./UI.md) と [AGREEMENTS.md](./AGREEMENTS.md)。
