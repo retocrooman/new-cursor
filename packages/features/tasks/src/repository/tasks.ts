@@ -175,7 +175,12 @@ export async function findBlockingTaskForRepoBranch(
 
   for (const row of rows) {
     const stage = row.stage as TaskStage;
-    if (stage === "worktree_ready" || stage === "implementing") {
+    if (
+      stage === "worktree_ready" ||
+      stage === "implementing" ||
+      stage === "verifying" ||
+      stage === "waiting"
+    ) {
       return toTaskProjection(row as TaskRow);
     }
     if (stage === "worktree_requested" && row.createdAt < input.taskCreatedAt) {
@@ -250,6 +255,36 @@ export async function completeWorktreeReady(
       throw TaskFeatureError.notFound(input.taskId);
     }
     return current;
+  }
+
+  return toTaskProjection(row as TaskRow);
+}
+
+export async function updateTaskPullRequestUrl(
+  tx: DbOrTx,
+  input: {
+    taskId: string;
+    pullRequestUrl: string;
+  },
+): Promise<TaskProjection> {
+  const existing = await findTaskById(tx, input.taskId);
+  if (!existing) {
+    throw TaskFeatureError.notFound(input.taskId);
+  }
+
+  const now = new Date();
+  const [row] = await tx
+    .update(tasks)
+    .set({
+      pullRequestUrl: input.pullRequestUrl,
+      updatedAt: now,
+      version: existing.version + 1,
+    })
+    .where(eq(tasks.id, input.taskId))
+    .returning();
+
+  if (!row) {
+    throw TaskFeatureError.notFound(input.taskId);
   }
 
   return toTaskProjection(row as TaskRow);

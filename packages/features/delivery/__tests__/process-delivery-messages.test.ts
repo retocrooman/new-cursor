@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { createAgent } from "@new-cursor/agents-feature";
-import { eq, inbox, outbox, tasks } from "@new-cursor/db";
+import { and, eq, inbox, outbox, tasks } from "@new-cursor/db";
 import {
   markInboxProcessed,
   tryInsertInbox,
@@ -60,7 +60,12 @@ describe("processDeliveryMessages integration", () => {
       const outboxRows = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "task_stage_changed"));
+        .where(
+          and(
+            eq(outbox.eventType, "task_stage_changed"),
+            eq(outbox.aggregateId, task.id),
+          ),
+        );
       expect(outboxRows).toHaveLength(1);
     });
   });
@@ -103,7 +108,12 @@ describe("processDeliveryMessages integration", () => {
       const outboxRows = await tx
         .select()
         .from(outbox)
-        .where(eq(outbox.eventType, "task_stage_changed"));
+        .where(
+          and(
+            eq(outbox.eventType, "task_stage_changed"),
+            eq(outbox.aggregateId, task.id),
+          ),
+        );
       expect(outboxRows).toHaveLength(1);
     });
   });

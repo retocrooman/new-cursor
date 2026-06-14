@@ -71,6 +71,8 @@ export const TASK_STAGE_VALUES = [
   "worktree_ready",
   "queued",
   "implementing",
+  "verifying",
+  "waiting",
   "completed",
 ] as const;
 
@@ -182,5 +184,233 @@ export function taskQueuedPayload(input: {
     repositoryId: input.repositoryId,
     branchName: input.branchName,
     blockingTaskId: input.blockingTaskId,
+  };
+}
+
+export const taskPrRequestedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  repositoryId: z.string().uuid(),
+  branchName: z.string(),
+});
+
+export type TaskPrRequestedPayload = z.infer<
+  typeof taskPrRequestedPayloadSchema
+>;
+
+export const taskPrRequestedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_pr_requested"),
+  payload: taskPrRequestedPayloadSchema,
+});
+
+export type TaskPrRequestedEvent = z.infer<typeof taskPrRequestedEventSchema>;
+
+export const createTaskPrRequestedEvent = defineEvent<TaskPrRequestedEvent>(
+  TASK_AGGREGATE,
+  "task_pr_requested",
+  taskPrRequestedEventSchema,
+);
+
+export function taskPrRequestedPayload(input: {
+  taskId: string;
+  repositoryId: string;
+  branchName: string;
+}): TaskPrRequestedPayload {
+  return {
+    taskId: input.taskId,
+    repositoryId: input.repositoryId,
+    branchName: input.branchName,
+  };
+}
+
+export const taskPrCreatedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  pullRequestUrl: z.string().url(),
+});
+
+export type TaskPrCreatedPayload = z.infer<typeof taskPrCreatedPayloadSchema>;
+
+export const taskPrCreatedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_pr_created"),
+  payload: taskPrCreatedPayloadSchema,
+});
+
+export type TaskPrCreatedEvent = z.infer<typeof taskPrCreatedEventSchema>;
+
+export const createTaskPrCreatedEvent = defineEvent<TaskPrCreatedEvent>(
+  TASK_AGGREGATE,
+  "task_pr_created",
+  taskPrCreatedEventSchema,
+);
+
+export function taskPrCreatedPayload(input: {
+  taskId: string;
+  pullRequestUrl: string;
+}): TaskPrCreatedPayload {
+  return {
+    taskId: input.taskId,
+    pullRequestUrl: input.pullRequestUrl,
+  };
+}
+
+export const approvalRequestedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  pullRequestUrl: z.string().url(),
+});
+
+export type ApprovalRequestedPayload = z.infer<
+  typeof approvalRequestedPayloadSchema
+>;
+
+export const approvalRequestedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("approval_requested"),
+  payload: approvalRequestedPayloadSchema,
+});
+
+export type ApprovalRequestedEvent = z.infer<
+  typeof approvalRequestedEventSchema
+>;
+
+export const createApprovalRequestedEvent = defineEvent<ApprovalRequestedEvent>(
+  TASK_AGGREGATE,
+  "approval_requested",
+  approvalRequestedEventSchema,
+);
+
+export function approvalRequestedPayload(input: {
+  taskId: string;
+  pullRequestUrl: string;
+}): ApprovalRequestedPayload {
+  return {
+    taskId: input.taskId,
+    pullRequestUrl: input.pullRequestUrl,
+  };
+}
+
+export const approvalGrantedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  approvedBy: z.string().uuid(),
+  pullRequestUrl: z.string().url(),
+});
+
+export type ApprovalGrantedPayload = z.infer<
+  typeof approvalGrantedPayloadSchema
+>;
+
+export const approvalGrantedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("approval_granted"),
+  payload: approvalGrantedPayloadSchema,
+});
+
+export type ApprovalGrantedEvent = z.infer<typeof approvalGrantedEventSchema>;
+
+export const createApprovalGrantedEvent = defineEvent<ApprovalGrantedEvent>(
+  TASK_AGGREGATE,
+  "approval_granted",
+  approvalGrantedEventSchema,
+);
+
+export function approvalGrantedPayload(input: {
+  taskId: string;
+  approvedBy: string;
+  pullRequestUrl: string;
+}): ApprovalGrantedPayload {
+  return {
+    taskId: input.taskId,
+    approvedBy: input.approvedBy,
+    pullRequestUrl: input.pullRequestUrl,
+  };
+}
+
+export const taskWaitingPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  waitingFor: z.literal("approval"),
+});
+
+export type TaskWaitingPayload = z.infer<typeof taskWaitingPayloadSchema>;
+
+export const taskWaitingEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_waiting"),
+  payload: taskWaitingPayloadSchema,
+});
+
+export type TaskWaitingEvent = z.infer<typeof taskWaitingEventSchema>;
+
+export const createTaskWaitingEvent = defineEvent<TaskWaitingEvent>(
+  TASK_AGGREGATE,
+  "task_waiting",
+  taskWaitingEventSchema,
+);
+
+export function taskWaitingPayload(input: {
+  taskId: string;
+  waitingFor?: "approval";
+}): TaskWaitingPayload {
+  return {
+    taskId: input.taskId,
+    waitingFor: input.waitingFor ?? "approval",
+  };
+}
+
+export const taskResumedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+  resumeReason: z.literal("approval_granted"),
+});
+
+export type TaskResumedPayload = z.infer<typeof taskResumedPayloadSchema>;
+
+export const taskResumedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_resumed"),
+  payload: taskResumedPayloadSchema,
+});
+
+export type TaskResumedEvent = z.infer<typeof taskResumedEventSchema>;
+
+export const createTaskResumedEvent = defineEvent<TaskResumedEvent>(
+  TASK_AGGREGATE,
+  "task_resumed",
+  taskResumedEventSchema,
+);
+
+export function taskResumedPayload(input: {
+  taskId: string;
+  resumeReason?: "approval_granted";
+}): TaskResumedPayload {
+  return {
+    taskId: input.taskId,
+    resumeReason: input.resumeReason ?? "approval_granted",
+  };
+}
+
+export const taskCompletedPayloadSchema = z.object({
+  taskId: z.string().uuid(),
+});
+
+export type TaskCompletedPayload = z.infer<typeof taskCompletedPayloadSchema>;
+
+export const taskCompletedEventSchema = eventEnvelopeBase.extend({
+  aggregateType: z.literal(TASK_AGGREGATE),
+  eventType: z.literal("task_completed"),
+  payload: taskCompletedPayloadSchema,
+});
+
+export type TaskCompletedEvent = z.infer<typeof taskCompletedEventSchema>;
+
+export const createTaskCompletedEvent = defineEvent<TaskCompletedEvent>(
+  TASK_AGGREGATE,
+  "task_completed",
+  taskCompletedEventSchema,
+);
+
+export function taskCompletedPayload(input: {
+  taskId: string;
+}): TaskCompletedPayload {
+  return {
+    taskId: input.taskId,
   };
 }

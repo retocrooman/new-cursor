@@ -1,16 +1,27 @@
 import type { DbOrTx } from "@new-cursor/db";
 import type { DeliveryMessage } from "@new-cursor/events";
+import {
+  taskCompletedPayloadSchema,
+  taskStageChangedPayloadSchema,
+} from "@new-cursor/tasks-feature";
 
 import type { PendingRunExecution } from "../pending-run";
 import { resolveSubscribers } from "../resolve-subscribers";
 import {
+  applyQueuedReleaseForCompletedTask,
   applyQueuedReleaseOnRunCompleted,
   handleRunCompleted,
 } from "./run-completed";
+import { handleTaskCompleted } from "./task-completed";
 import {
   applyTaskCreatedStageTransition,
   handleTaskCreated,
 } from "./task-created";
+import {
+  handleTaskPrCreated,
+  handleTaskPrRequested,
+  handleTaskStageChangedToVerifying,
+} from "./task-pipeline";
 import {
   applyWorktreeRequestedTransition,
   handleTaskStageChanged,
@@ -25,10 +36,23 @@ type DispatchHandler = (
 
 const DISPATCH_REGISTRY: Partial<Record<string, DispatchHandler>> = {
   task_created: handleTaskCreated,
-  task_stage_changed: handleTaskStageChanged,
+  task_stage_changed: async (tx, input) => {
+    await handleTaskStageChanged(tx, input);
+    await handleTaskStageChangedToVerifying(tx, input);
+    return null;
+  },
   task_worktree_ready: handleTaskWorktreeReady,
   run_completed: handleRunCompleted,
+  task_pr_requested: handleTaskPrRequested,
+  task_pr_created: handleTaskPrCreated,
+  task_completed: handleTaskCompleted,
 };
+
+const PIPELINE_STAGE_CHANGED_TARGETS = new Set([
+  "verifying",
+  "waiting",
+  "completed",
+]);
 
 export type DispatchResult = {
   agentCount: number;
@@ -73,20 +97,29 @@ export async function dispatchToSubscribers(
   > | null = null;
   if (message.eventType === "task_stage_changed") {
     worktreeTransition = await applyWorktreeRequestedTransition(tx, message);
-    if (worktreeTransition.kind === "skipped") {
-      return {
-        agentCount: agentIds.length,
-        dispatched: 0,
-        errors: 0,
-        pendingRuns: [],
-      };
+    if (worktreeTransition.kind !== "skipped") {
+      if (agentIds[0]) {
+        await writeRepositoryCloneCompletedIfNeeded(tx, {
+          actorId: agentIds[0],
+          transition: worktreeTransition,
+        });
+      }
+    } else {
+      const payload = taskStageChangedPayloadSchema.parse(message.payload);
+      if (!PIPELINE_STAGE_CHANGED_TARGETS.has(payload.toStage)) {
+        return {
+          agentCount: agentIds.length,
+          dispatched: 0,
+          errors: 0,
+          pendingRuns: [],
+        };
+      }
     }
-    if (agentIds[0]) {
-      await writeRepositoryCloneCompletedIfNeeded(tx, {
-        actorId: agentIds[0],
-        transition: worktreeTransition,
-      });
-    }
+  }
+
+  if (message.eventType === "task_completed" && agentIds[0]) {
+    const payload = taskCompletedPayloadSchema.parse(message.payload);
+    await applyQueuedReleaseForCompletedTask(tx, payload.taskId, agentIds[0]);
   }
 
   if (message.eventType === "run_completed" && agentIds[0]) {

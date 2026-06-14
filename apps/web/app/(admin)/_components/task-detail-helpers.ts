@@ -13,6 +13,8 @@ export const TASK_STAGE_ORDER = [
   "worktree_ready",
   "queued",
   "implementing",
+  "verifying",
+  "waiting",
   "completed",
 ] as const satisfies readonly TaskProjectionDto["stage"][];
 
@@ -94,8 +96,14 @@ export function deriveCompletionCriteria(
     {
       id: "implementation",
       label: "実装完了",
-      status: criterionStatus(idx, 5, task.stage === "completed"),
-      detail: "エージェント実行が完了しステージが completed",
+      status: criterionStatus(idx, 5, idx >= 6),
+      detail: "エージェント実行が完了し verifying へ遷移",
+    },
+    {
+      id: "approval",
+      label: "承認完了",
+      status: criterionStatus(idx, 7, task.stage === "completed"),
+      detail: "PR 承認後に completed",
     },
   ];
 
@@ -321,9 +329,15 @@ const FLOW_NODE_LAYOUT: Record<
     col: 2,
   },
   stage_completed: {
-    label: "工程完了",
+    label: "実装工程完了",
     eventType: "task_stage_changed",
     row: 5,
+    col: 1,
+  },
+  approval_requested: {
+    label: "承認依頼",
+    eventType: "approval_requested",
+    row: 9,
     col: 1,
   },
   task_pr_requested: {
@@ -347,19 +361,19 @@ const FLOW_NODE_LAYOUT: Record<
   approval_granted: {
     label: "承認",
     eventType: "approval_granted",
-    row: 9,
+    row: 10,
     col: 1,
   },
   pr_merged: {
     label: "PR マージ",
     eventType: "pr_merged",
-    row: 10,
+    row: 11,
     col: 1,
   },
   task_completed: {
     label: "タスク完了",
     eventType: "task_completed",
-    row: 11,
+    row: 12,
     col: 1,
   },
 };
@@ -398,11 +412,14 @@ const MVP_FLOW_EDGES: Omit<PredictedFlowEdge, "id">[] = [
     style: "solid",
   },
   { from: "run_completed_ok", to: "stage_completed", style: "solid" },
+  { from: "stage_completed", to: "task_pr_requested", style: "solid" },
+  { from: "task_pr_requested", to: "task_pr_created", style: "solid" },
+  { from: "task_pr_created", to: "approval_requested", style: "solid" },
+  { from: "approval_requested", to: "approval_granted", style: "solid" },
+  { from: "approval_granted", to: "task_completed", style: "solid" },
 ];
 
 const FUTURE_FLOW_EDGES: Omit<PredictedFlowEdge, "id">[] = [
-  { from: "stage_completed", to: "task_pr_requested", style: "dashed" },
-  { from: "task_pr_requested", to: "task_pr_created", style: "dashed" },
   { from: "task_pr_created", to: "ci_completed", style: "dashed" },
   { from: "ci_completed", to: "approval_granted", style: "dashed" },
   { from: "approval_granted", to: "pr_merged", style: "dashed" },
@@ -415,7 +432,9 @@ const STAGE_CURRENT_NODE: Partial<Record<TaskStage, string>> = {
   worktree_ready: "worktree_ready",
   queued: "task_queued",
   implementing: "run_started",
-  completed: "stage_completed",
+  verifying: "task_pr_requested",
+  waiting: "approval_requested",
+  completed: "task_completed",
 };
 
 export function buildPredictedEventFlow(
@@ -459,24 +478,22 @@ export function buildPredictedEventFlow(
         hasEvent("task_worktree_ready") || idx >= 2 || stage === "queued",
       task_queued: hasEvent("task_queued") || stage === "queued",
       run_started: hasRun || idx >= 4,
-      run_completed_ok: hasRunSuccess || stage === "completed",
+      run_completed_ok: hasRunSuccess || idx >= 5,
       run_completed_error: hasRunError,
-      stage_completed: stage === "completed",
+      stage_completed: idx >= 5 || hasEvent("task_pr_requested"),
+      task_pr_requested: hasEvent("task_pr_requested") || idx >= 6,
+      task_pr_created: hasEvent("task_pr_created") || idx >= 7,
+      approval_requested: hasEvent("approval_requested") || idx >= 7,
+      approval_granted: hasEvent("approval_granted") || stage === "completed",
+      task_completed: hasEvent("task_completed") || stage === "completed",
     };
 
     if (pastByStage[id]) return "past";
 
-    const futureIds = new Set([
-      "task_pr_requested",
-      "task_pr_created",
-      "ci_completed",
-      "approval_granted",
-      "pr_merged",
-      "task_completed",
-    ]);
+    const futureIds = new Set(["ci_completed", "pr_merged"]);
     if (futureIds.has(id)) return "future";
 
-    if (stage === "completed" && id === "stage_completed") return "current";
+    if (stage === "completed" && id === "task_completed") return "current";
 
     return "predicted";
   };

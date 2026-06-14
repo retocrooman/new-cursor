@@ -15,9 +15,12 @@ export const taskProjectionSchema = z.object({
     "worktree_ready",
     "queued",
     "implementing",
+    "verifying",
+    "waiting",
     "completed",
   ]),
   worktreePath: z.string().nullable(),
+  pullRequestUrl: z.string().nullable(),
   ...auditFields,
 });
 
@@ -49,6 +52,8 @@ const taskStageSchema = z.enum([
   "worktree_ready",
   "queued",
   "implementing",
+  "verifying",
+  "waiting",
   "completed",
 ]);
 
@@ -104,3 +109,95 @@ export const taskQueuedEventListItem = z.object({
 });
 
 export type TaskQueuedEventListItem = z.infer<typeof taskQueuedEventListItem>;
+
+export const taskPrRequestedEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("task_pr_requested"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+    repositoryId: z.string().uuid(),
+    branchName: z.string(),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});
+
+export const taskPrCreatedEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("task_pr_created"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+    pullRequestUrl: z.string().url(),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});
+
+export const approvalRequestedEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("approval_requested"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+    pullRequestUrl: z.string().url(),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});
+
+export const approvalGrantedEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("approval_granted"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+    approvedBy: z.string().uuid(),
+    pullRequestUrl: z.string().url(),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});
+
+export const taskWaitingEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("task_waiting"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+    waitingFor: z.literal("approval"),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});
+
+export const taskResumedEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("task_resumed"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+    resumeReason: z.literal("approval_granted"),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});
+
+export const taskCompletedEventListItem = z.object({
+  aggregateType: z.literal("task"),
+  aggregateId: z.string().uuid(),
+  eventType: z.literal("task_completed"),
+  payload: z.object({
+    taskId: z.string().uuid(),
+  }),
+  actorId: z.string().uuid(),
+  createdAt: z.string().datetime(),
+  version: z.number().int().positive(),
+});

@@ -28,6 +28,8 @@ export const TASK_STAGE_LABELS: Record<string, string> = {
   worktree_ready: "worktree 準備完了",
   queued: "キュー待ち",
   implementing: "実装中",
+  verifying: "検証中",
+  waiting: "承認待ち",
   completed: "完了",
 };
 
@@ -66,6 +68,43 @@ export const TASK_EVENT_FORMATTERS: EventFormatterRegistry = {
       title: `同一ブランチのためキュー待ち（${p.branchName}）`,
     };
   },
+  task_pr_requested: (payload) => {
+    const p = payload as { branchName: string };
+    return {
+      icon: "system",
+      title: `PR 作成依頼（${p.branchName}）`,
+    };
+  },
+  task_pr_created: (payload) => {
+    const p = payload as { pullRequestUrl: string };
+    return {
+      icon: "create",
+      title: `PR 作成: ${p.pullRequestUrl}`,
+    };
+  },
+  approval_requested: (payload) => {
+    const p = payload as { pullRequestUrl: string };
+    return {
+      icon: "system",
+      title: `承認依頼: ${p.pullRequestUrl}`,
+    };
+  },
+  approval_granted: () => ({
+    icon: "transition",
+    title: "承認完了",
+  }),
+  task_waiting: () => ({
+    icon: "system",
+    title: "承認待ち",
+  }),
+  task_resumed: () => ({
+    icon: "transition",
+    title: "承認により再開",
+  }),
+  task_completed: () => ({
+    icon: "create",
+    title: "タスク完了",
+  }),
 };
 
 export function formatTaskEvent(

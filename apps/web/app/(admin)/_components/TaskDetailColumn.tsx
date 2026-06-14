@@ -5,7 +5,7 @@ import type {
   TaskProjectionDto,
 } from "@new-cursor/orpc-contract";
 import { TabPanel, Tabs } from "@new-cursor/ui";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { parseAsString, useQueryState } from "nuqs";
 import { useId, useState } from "react";
 
@@ -180,6 +180,8 @@ function TaskDetailPanel({
     <div className="space-y-3">
       <StagePipelineStepper stage={task.stage} />
 
+      {task.stage === "waiting" ? <TaskApproveButton taskId={task.id} /> : null}
+
       <CompactBlock title="背景・検証">
         <div className="space-y-1">
           <TaskContentField
@@ -326,4 +328,36 @@ function repoLabel(
 ): string {
   if (!task.repositoryId) return "（リポジトリ未設定）";
   return repositoriesById[task.repositoryId] ?? task.repositoryId;
+}
+
+function TaskApproveButton({ taskId }: { taskId: string }) {
+  const queryClient = useQueryClient();
+  const approveMutation = useMutation({
+    mutationFn: () => orpcBrowser.tasks.approve({ id: taskId }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["tasks.get", taskId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["events.listByAggregate", "task", taskId],
+      });
+    },
+  });
+
+  return (
+    <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-2">
+      <p className="mb-2 text-xs text-muted-foreground">
+        PR の内容を確認し、問題なければ承認してください。
+      </p>
+      <button
+        type="button"
+        className="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground disabled:opacity-50"
+        disabled={approveMutation.isPending}
+        onClick={() => approveMutation.mutate()}
+      >
+        {approveMutation.isPending ? "承認中..." : "承認"}
+      </button>
+      {approveMutation.isError ? (
+        <p className="mt-2 text-xs text-destructive">承認に失敗しました</p>
+      ) : null}
+    </div>
+  );
 }

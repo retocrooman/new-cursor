@@ -10,6 +10,7 @@ import { createBareRepoFixture } from "@new-cursor/git-ops/bare-repo-fixture";
 import { registerRepository } from "@new-cursor/repositories-feature";
 import { upsertSubscription } from "@new-cursor/subscriptions-feature";
 import {
+  approveTask,
   createTaskCreatedEvent,
   insertTask,
   taskCreatedPayload,
@@ -59,6 +60,9 @@ describe("E2E-9A — queued task release after run_completed", () => {
               "task_stage_changed",
               "task_worktree_ready",
               "run_completed",
+              "task_pr_requested",
+              "task_pr_created",
+              "task_completed",
             ],
           });
           const repository = await registerRepository(tx, {
@@ -108,8 +112,23 @@ describe("E2E-9A — queued task release after run_completed", () => {
           .select()
           .from(tasks)
           .where(eq(tasks.id, secondTaskId));
-        expect(firstAfterQueue[0]?.stage).toBe("completed");
-        expect(secondAfterQueue[0]?.stage).not.toBe("queued");
+        expect(firstAfterQueue[0]?.stage).not.toBe("completed");
+        expect(["verifying", "waiting"]).toContain(firstAfterQueue[0]?.stage);
+        expect(secondAfterQueue[0]?.stage).toBe("queued");
+
+        await db.transaction(async (tx) => {
+          await approveTask(tx, {
+            taskId: firstTaskId,
+            approvedBy: SYSTEM_ACTOR_ID,
+          });
+        });
+        await relayAndDispatchAll({ db, sqs: env.sqs, maxRounds: 8 });
+
+        const firstAfterApprove = await db
+          .select()
+          .from(tasks)
+          .where(eq(tasks.id, firstTaskId));
+        expect(firstAfterApprove[0]?.stage).toBe("completed");
 
         const releaseOutbox = await db
           .select()
@@ -130,23 +149,11 @@ describe("E2E-9A — queued task release after run_completed", () => {
           }),
         ).toBe(true);
 
-        const secondStage = secondAfterQueue[0]?.stage;
-        if (secondStage === "worktree_requested") {
-          await relayAndDispatchAll({ db, sqs: env.sqs, maxRounds: 8 });
-
-          const secondAfterWorktree = await db
-            .select()
-            .from(tasks)
-            .where(eq(tasks.id, secondTaskId));
-          expect(secondAfterWorktree[0]?.stage).toBe("worktree_ready");
-          expect(secondAfterWorktree[0]?.worktreePath).toBeTruthy();
-          return;
-        }
-
-        expect(secondAfterQueue[0]?.worktreePath).toBeTruthy();
-        expect(["worktree_ready", "implementing", "completed"]).toContain(
-          secondStage,
-        );
+        const secondAfterApprove = await db
+          .select()
+          .from(tasks)
+          .where(eq(tasks.id, secondTaskId));
+        expect(secondAfterApprove[0]?.stage).not.toBe("queued");
       } finally {
         await getRawClient(db).end();
       }

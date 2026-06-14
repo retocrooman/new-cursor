@@ -36,6 +36,8 @@ export function taskStageChangedMessage(
       | "worktree_ready"
       | "queued"
       | "implementing"
+      | "verifying"
+      | "waiting"
       | "completed";
     toStage:
       | "created"
@@ -43,6 +45,8 @@ export function taskStageChangedMessage(
       | "worktree_ready"
       | "queued"
       | "implementing"
+      | "verifying"
+      | "waiting"
       | "completed";
   },
   eventId = randomUUID(),
