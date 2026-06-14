@@ -129,7 +129,7 @@ export function HomeShell() {
       <section
         aria-label="司令官"
         style={{ width: columnWidths.commander }}
-        className="flex shrink-0 flex-col bg-sidebar"
+        className="flex min-w-0 shrink-0 flex-col overflow-hidden bg-sidebar"
       >
         <CommanderPanel />
       </section>
